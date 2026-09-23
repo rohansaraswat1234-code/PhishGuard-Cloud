@@ -1,0 +1,3212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>URL Scanner | PhishGuard</title>
+
+<link
+    rel="stylesheet"
+    href="/static/scanner.css"
+>
+
+
+<link
+    rel="stylesheet"
+    href="/static/motion.css"
+>
+
+</head>
+
+
+<body>
+
+<div class="scanner-layout">
+
+
+<!-- ======================================
+     SIDEBAR
+====================================== -->
+
+<aside class="scanner-sidebar">
+
+
+<div>
+
+<div class="scanner-brand">
+
+<div class="brand-logo">
+🛡
+</div>
+
+<div>
+<h2>PhishGuard</h2>
+<span>Personal Security</span>
+</div>
+
+</div>
+
+
+<nav class="scanner-menu">
+
+<a href="/dashboard">
+
+<span>▦</span>
+
+Overview
+
+</a>
+
+
+<a
+    href="/scanner"
+    class="active"
+>
+
+<span>⌗</span>
+
+URL Scanner
+
+</a>
+
+
+<a href="/analytics">
+
+<span>▥</span>
+
+Analytics
+
+</a>
+
+
+<a href="/dashboard#history">
+
+<span>◷</span>
+
+Scan History
+
+</a>
+
+
+<a href="/profile">
+
+<span>♙</span>
+
+Profile
+
+</a>
+
+</nav>
+
+</div>
+
+
+
+<div class="engine-box">
+
+<div class="engine-status-line">
+
+<span class="online-dot"></span>
+
+<strong>
+Detection Engine Online
+</strong>
+
+</div>
+
+<p>
+Rule Engine + Machine Learning
+</p>
+
+</div>
+
+
+</aside>
+
+
+
+<!-- ======================================
+     MAIN
+====================================== -->
+
+<main class="scanner-main">
+
+
+<!-- HEADER -->
+
+<header class="scanner-header">
+
+
+<div>
+
+<p class="eyebrow">
+PHISHING DETECTION
+</p>
+
+<h1>
+URL Security Scanner
+</h1>
+
+<p>
+Analyse suspicious websites before
+opening them.
+</p>
+
+</div>
+
+
+<div class="header-actions">
+
+<a
+    href="/dashboard"
+    class="dashboard-button"
+>
+← Dashboard
+</a>
+
+
+<div class="profile-mini">
+
+<div class="profile-avatar">
+{{ session.get("name", "U")[:2]|upper }}
+</div>
+
+<div>
+<strong>
+{{ session.get("name", "User") }}
+</strong>
+
+<span>
+Protected User
+</span>
+</div>
+
+</div>
+
+</div>
+
+
+</header>
+
+
+
+<!-- SYSTEM BAR -->
+
+<section class="scanner-system-bar">
+
+
+<div>
+
+<span class="system-dot"></span>
+
+<div>
+<strong>PhishGuard Active</strong>
+<small>Secure scanning session</small>
+</div>
+
+</div>
+
+
+<div>
+
+<span class="system-chip">R</span>
+
+<div>
+<strong>Rule Engine</strong>
+<small>Lexical analysis</small>
+</div>
+
+</div>
+
+
+<div>
+
+<span class="system-chip">ML</span>
+
+<div>
+<strong>ML Model</strong>
+<small>Phishing prediction</small>
+</div>
+
+</div>
+
+
+<div>
+
+<span class="system-chip">DB</span>
+
+<div>
+<strong>Scan History</strong>
+<small>Automatically saved</small>
+</div>
+
+</div>
+
+
+</section>
+
+
+
+<!-- ======================================
+     STATS
+====================================== -->
+
+<section class="scanner-stats">
+
+
+<div class="scanner-stat">
+
+<span>
+Total Scans
+</span>
+
+<strong id="totalScans">
+0
+</strong>
+
+<small>
+Your account
+</small>
+
+</div>
+
+
+<div class="scanner-stat">
+
+<span>
+Safe
+</span>
+
+<strong
+    id="safeScans"
+    class="safe-text"
+>
+0
+</strong>
+
+<small>
+Low-risk links
+</small>
+
+</div>
+
+
+<div class="scanner-stat">
+
+<span>
+Suspicious
+</span>
+
+<strong
+    id="suspiciousScans"
+    class="warning-text"
+>
+0
+</strong>
+
+<small>
+Use caution
+</small>
+
+</div>
+
+
+<div class="scanner-stat">
+
+<span>
+Phishing
+</span>
+
+<strong
+    id="phishingScans"
+    class="danger-text"
+>
+0
+</strong>
+
+<small>
+Dangerous links
+</small>
+
+</div>
+
+
+</section>
+
+
+
+<!-- ======================================
+     SCANNER CARD
+====================================== -->
+
+<section class="scanner-card">
+
+
+<div class="scanner-card-heading">
+
+<div>
+
+<div class="scanner-heading-icon">
+⌗
+</div>
+
+<div>
+
+<h2>
+Analyse URL
+</h2>
+
+<p>
+Choose a single link or bulk file scan.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="secure-label">
+
+<span></span>
+
+Protected Scan
+
+</div>
+
+</div>
+
+
+
+<!-- MODES -->
+
+<div class="scan-tabs">
+
+<button
+    id="singleTab"
+    class="scan-tab active"
+    onclick="openSingleMode()"
+>
+Single URL
+</button>
+
+
+<button
+    id="bulkTab"
+    class="scan-tab"
+    onclick="openBulkMode()"
+>
+Bulk File Scan
+</button>
+
+</div>
+
+
+
+<!-- ======================================
+     SINGLE URL
+====================================== -->
+
+<div id="singleMode">
+
+
+<div class="single-input-wrapper">
+
+<div class="url-prefix">
+🔗
+</div>
+
+<input
+    id="urlInput"
+    type="text"
+    autocomplete="off"
+    placeholder="https://example.com/login"
+>
+
+
+<button
+    id="singleScanButton"
+    onclick="scanSingleURL()"
+>
+<span id="scanButtonText">
+Scan URL
+</span>
+
+<span>
+→
+</span>
+</button>
+
+</div>
+
+
+<div class="scanner-help">
+
+<span>
+Tip: paste the complete URL including the domain.
+</span>
+
+<span>
+Enter ↵ to scan
+</span>
+
+</div>
+
+
+
+<!-- LOADER -->
+
+<div
+    id="scanLoader"
+    class="analysis-loader hidden"
+>
+
+<div class="loader-top">
+
+<div>
+
+<strong>
+Analysing URL...
+</strong>
+
+<p>
+Checking rule patterns and machine-learning prediction.
+</p>
+
+</div>
+
+
+<span id="loaderPercent">
+0%
+</span>
+
+</div>
+
+
+<div class="loader-track">
+
+<div
+    id="loaderBar"
+    class="loader-bar"
+></div>
+
+</div>
+
+</div>
+
+
+
+<!-- RESULT -->
+
+<div
+    id="singleResult"
+    class="single-result hidden"
+>
+
+
+<div class="result-main">
+
+
+<div
+    id="verdictIcon"
+    class="verdict-icon"
+>
+?
+</div>
+
+
+<div>
+
+<span class="result-label">
+FINAL VERDICT
+</span>
+
+<h2 id="statusText">
+-
+</h2>
+
+<p id="scannedUrl">
+-
+</p>
+
+</div>
+
+
+</div>
+
+
+
+<div class="result-grid">
+
+
+<div>
+
+<span>
+Risk Score
+</span>
+
+<strong id="riskScore">
+-
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Rule Engine
+</span>
+
+<strong id="ruleStatus">
+-
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+ML Prediction
+</span>
+
+<strong id="mlPrediction">
+-
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+ML Probability
+</span>
+
+<strong id="mlProbability">
+-
+</strong>
+
+</div>
+
+
+</div>
+
+
+
+<div class="risk-meter">
+
+<div class="risk-meter-heading">
+
+<span>
+Risk level
+</span>
+
+<strong id="riskLevelText">
+-
+</strong>
+
+</div>
+
+
+<div class="risk-track">
+
+<div
+    id="riskBar"
+    class="risk-bar"
+></div>
+
+</div>
+
+</div>
+
+
+
+<div
+    id="analysisReasons"
+    class="analysis-reasons"
+>
+
+<h3>
+Why did PhishGuard give this result?
+</h3>
+
+<ul id="reasonList">
+</ul>
+
+</div>
+
+
+
+<div class="result-actions">
+
+<button
+    type="button"
+    onclick="copyScannedURL()"
+>
+Copy URL
+</button>
+
+
+<button
+    type="button"
+    onclick="resetSingleScanner()"
+>
+Scan Another
+</button>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- ======================================
+     BULK MODE
+====================================== -->
+
+<div
+    id="bulkMode"
+    class="hidden"
+>
+
+
+<div
+    id="bulkDropZone"
+    class="bulk-drop-zone"
+>
+
+<div class="upload-icon">
+⇧
+</div>
+
+
+<h2>
+Drop your URL file here
+</h2>
+
+
+<p>
+Upload a TXT or CSV file containing URLs.
+</p>
+
+
+<div class="bulk-limits">
+
+<span>TXT / CSV</span>
+
+<span>Up to 500 URLs</span>
+
+<span>Max 5 MB</span>
+
+</div>
+
+
+<input
+    id="bulkFileInput"
+    type="file"
+    accept=".txt,.csv,text/plain,text/csv"
+    hidden
+>
+
+
+<button
+    class="choose-file"
+    onclick="
+        document
+        .getElementById('bulkFileInput')
+        .click()
+    "
+>
+Choose File
+</button>
+
+
+<span id="bulkFileName">
+No file selected
+</span>
+
+</div>
+
+
+
+<!-- FILE PREVIEW -->
+
+<div
+    id="bulkPreview"
+    class="bulk-preview hidden"
+>
+
+
+<div>
+
+<span>
+File
+</span>
+
+<strong id="previewFileName">
+-
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+URLs Found
+</span>
+
+<strong id="previewUrlCount">
+0
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Duplicates Removed
+</span>
+
+<strong id="previewDuplicates">
+0
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+File Size
+</span>
+
+<strong id="previewFileSize">
+-
+</strong>
+
+</div>
+
+
+</div>
+
+
+
+<div class="bulk-start-row">
+
+
+<div>
+
+<strong>
+Ready for batch analysis
+</strong>
+
+<p>
+Each URL is scanned using the same
+Rule + ML detection pipeline.
+</p>
+
+</div>
+
+
+<button
+    id="bulkStartButton"
+    onclick="startBulkScan()"
+>
+Start Bulk Scan
+</button>
+
+
+</div>
+
+
+
+<!-- PROGRESS -->
+
+<div
+    id="bulkProgress"
+    class="bulk-progress hidden"
+>
+
+
+<div class="bulk-progress-info">
+
+<span id="bulkProgressText">
+Preparing...
+</span>
+
+<strong id="bulkProgressPercent">
+0%
+</strong>
+
+</div>
+
+
+<div class="bulk-progress-track">
+
+<div
+    id="bulkProgressBar"
+    class="bulk-progress-bar"
+></div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- SUMMARY -->
+
+<div
+    id="bulkSummary"
+    class="bulk-summary hidden"
+>
+
+
+<div>
+
+<span>
+Processed
+</span>
+
+<strong id="bulkProcessed">
+0
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Safe
+</span>
+
+<strong
+    id="bulkSafe"
+    class="safe-text"
+>
+0
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Suspicious
+</span>
+
+<strong
+    id="bulkSuspicious"
+    class="warning-text"
+>
+0
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Phishing
+</span>
+
+<strong
+    id="bulkPhishing"
+    class="danger-text"
+>
+0
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Errors
+</span>
+
+<strong id="bulkErrors">
+0
+</strong>
+
+</div>
+
+
+</div>
+
+
+
+<!-- RESULTS TABLE -->
+
+<div
+    id="bulkResults"
+    class="bulk-results hidden"
+>
+
+
+<div class="bulk-results-header">
+
+
+<div>
+
+<h2>
+Bulk Scan Results
+</h2>
+
+<p>
+Review every analysed URL.
+</p>
+
+</div>
+
+
+<div class="bulk-result-actions">
+
+<input
+    id="bulkSearch"
+    placeholder="Search results..."
+>
+
+
+<button
+    onclick="downloadBulkCSV()"
+>
+↓ Export CSV
+</button>
+
+</div>
+
+
+</div>
+
+
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>URL</th>
+<th>VERDICT</th>
+<th>RISK</th>
+<th>RULE</th>
+<th>ML</th>
+<th>ML SCORE</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="bulkResultsBody">
+</tbody>
+
+</table>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- ======================================
+     RECENT HISTORY
+====================================== -->
+
+<section class="scanner-card history-card">
+
+
+<div class="history-heading">
+
+
+<div>
+
+<p class="eyebrow">
+YOUR ACTIVITY
+</p>
+
+<h2>
+Recent Scans
+</h2>
+
+<p>
+Your latest saved URL analysis.
+</p>
+
+</div>
+
+
+<div class="history-header-actions">
+
+
+<input
+    id="historySearch"
+    placeholder="Search history..."
+>
+
+
+<button
+    onclick="downloadHistoryCSV()"
+>
+↓ My Report
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>URL</th>
+<th>FINAL</th>
+<th>RISK</th>
+<th>RULE</th>
+<th>ML</th>
+<th>TIME</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="historyBody">
+
+<tr>
+
+<td colspan="6">
+Loading history...
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+</section>
+
+
+
+<footer>
+
+<div>
+🛡 PhishGuard Cloud Security Platform
+</div>
+
+
+<div>
+
+<a href="/dashboard">
+Dashboard
+</a>
+
+<a href="/profile">
+Profile
+</a>
+
+<a href="/logout" class="pg-logout-button pg-logout-button">
+Logout
+</a>
+
+</div>
+
+</footer>
+
+
+</main>
+
+</div>
+
+
+
+<script>
+
+
+/* ======================================
+   STATE
+====================================== */
+
+let bulkResultsData = [];
+let userHistoryData = [];
+let bulkFileUrls = [];
+let currentScannedURL = "";
+
+
+
+/* ======================================
+   MODE SWITCH
+====================================== */
+
+function openSingleMode() {
+
+    document
+        .getElementById("singleMode")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("bulkMode")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("singleTab")
+        .classList.add("active");
+
+
+    document
+        .getElementById("bulkTab")
+        .classList.remove("active");
+
+}
+
+
+
+function openBulkMode() {
+
+    document
+        .getElementById("singleMode")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("bulkMode")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("bulkTab")
+        .classList.add("active");
+
+
+    document
+        .getElementById("singleTab")
+        .classList.remove("active");
+
+}
+
+
+
+/* ======================================
+   SINGLE URL SCAN
+====================================== */
+
+async function scanSingleURL() {
+
+    const input =
+        document.getElementById(
+            "urlInput"
+        );
+
+
+    const button =
+        document.getElementById(
+            "singleScanButton"
+        );
+
+
+    const url =
+        input.value.trim();
+
+
+    if (!url) {
+
+        alert(
+            "Please enter a URL."
+        );
+
+        input.focus();
+
+        return;
+
+    }
+
+
+    button.disabled = true;
+
+
+    document
+        .getElementById(
+            "singleResult"
+        )
+        .classList.add("hidden");
+
+
+    const loader =
+        document.getElementById(
+            "scanLoader"
+        );
+
+
+    loader.classList.remove(
+        "hidden"
+    );
+
+
+    let progress = 10;
+
+
+    updateLoader(progress);
+
+
+    const loaderTimer =
+        setInterval(() => {
+
+            if (progress < 85) {
+
+                progress +=
+                    Math.floor(
+                        Math.random() * 12
+                    ) + 2;
+
+
+                progress =
+                    Math.min(
+                        progress,
+                        85
+                    );
+
+
+                updateLoader(
+                    progress
+                );
+
+            }
+
+        }, 180);
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/scan",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+                            url: url
+                        })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        clearInterval(
+            loaderTimer
+        );
+
+
+        updateLoader(100);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
+                || "URL scan failed."
+            );
+
+        }
+
+
+        setTimeout(() => {
+
+            loader.classList.add(
+                "hidden"
+            );
+
+
+            displaySingleResult(
+                data
+            );
+
+        }, 250);
+
+
+        await loadStats();
+
+        await loadHistory();
+
+
+    }
+
+    catch (error) {
+
+        clearInterval(
+            loaderTimer
+        );
+
+
+        loader.classList.add(
+            "hidden"
+        );
+
+
+        alert(
+            error.message
+            || "Unable to scan URL."
+        );
+
+    }
+
+    finally {
+
+        button.disabled =
+            false;
+
+    }
+
+}
+
+
+
+function updateLoader(value) {
+
+    document
+        .getElementById(
+            "loaderPercent"
+        )
+        .textContent =
+            value + "%";
+
+
+    document
+        .getElementById(
+            "loaderBar"
+        )
+        .style.width =
+            value + "%";
+
+}
+
+
+
+function displaySingleResult(data) {
+
+    currentScannedURL =
+        data.url || "";
+
+
+    const result =
+        document.getElementById(
+            "singleResult"
+        );
+
+
+    const verdict =
+        data.status || "UNKNOWN";
+
+
+    document
+        .getElementById(
+            "statusText"
+        )
+        .textContent =
+            verdict;
+
+
+    document
+        .getElementById(
+            "scannedUrl"
+        )
+        .textContent =
+            data.url || "-";
+
+
+    document
+        .getElementById(
+            "riskScore"
+        )
+        .textContent =
+            (
+                data.risk_score
+                ?? 0
+            ) + "/100";
+
+
+    document
+        .getElementById(
+            "ruleStatus"
+        )
+        .textContent =
+            data.rule_status
+            || "-";
+
+
+    document
+        .getElementById(
+            "mlPrediction"
+        )
+        .textContent =
+            data.ml_prediction
+            || "-";
+
+
+    document
+        .getElementById(
+            "mlProbability"
+        )
+        .textContent =
+            (
+                data.ml_probability
+                ?? "-"
+            ) + "%";
+
+
+    const icon =
+        document.getElementById(
+            "verdictIcon"
+        );
+
+
+    result.classList.remove(
+        "safe-result",
+        "warning-result",
+        "danger-result"
+    );
+
+
+    if (verdict === "SAFE") {
+
+        result.classList.add(
+            "safe-result"
+        );
+
+        icon.textContent = "✓";
+
+    }
+
+    else if (
+        verdict === "SUSPICIOUS"
+    ) {
+
+        result.classList.add(
+            "warning-result"
+        );
+
+        icon.textContent = "⚠";
+
+    }
+
+    else {
+
+        result.classList.add(
+            "danger-result"
+        );
+
+        icon.textContent = "!";
+
+    }
+
+
+    const risk =
+        Number(
+            data.risk_score
+            || 0
+        );
+
+
+    document
+        .getElementById(
+            "riskBar"
+        )
+        .style.width =
+            Math.min(
+                100,
+                risk
+            )
+            + "%";
+
+
+    document
+        .getElementById(
+            "riskLevelText"
+        )
+        .textContent =
+            risk >= 60
+                ? "High"
+                : risk >= 30
+                    ? "Medium"
+                    : "Low";
+
+
+    const reasons =
+        Array.isArray(
+            data.reasons
+        )
+        ? data.reasons
+        : [];
+
+
+    const list =
+        document.getElementById(
+            "reasonList"
+        );
+
+
+    list.textContent = "";
+
+
+    if (!reasons.length) {
+
+        const item =
+            document.createElement(
+                "li"
+            );
+
+
+        item.textContent =
+            "No major suspicious URL patterns detected.";
+
+
+        list.appendChild(
+            item
+        );
+
+    }
+
+    else {
+
+        reasons.forEach(
+            reason => {
+
+                const item =
+                    document.createElement(
+                        "li"
+                    );
+
+
+                item.textContent =
+                    reason;
+
+
+                list.appendChild(
+                    item
+                );
+
+            }
+        );
+
+    }
+
+
+    result.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+
+function resetSingleScanner() {
+
+    document
+        .getElementById(
+            "urlInput"
+        )
+        .value =
+            "";
+
+
+    document
+        .getElementById(
+            "singleResult"
+        )
+        .classList.add(
+            "hidden"
+        );
+
+
+    document
+        .getElementById(
+            "urlInput"
+        )
+        .focus();
+
+}
+
+
+
+async function copyScannedURL() {
+
+    if (!currentScannedURL) {
+        return;
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            currentScannedURL
+        );
+
+    }
+
+    catch (_) {
+
+        alert(
+            "Unable to copy URL."
+        );
+
+    }
+
+}
+
+
+
+/* ======================================
+   STATS
+====================================== */
+
+function numberFrom(
+    data,
+    keys
+) {
+
+    for (
+        const key
+        of keys
+    ) {
+
+        if (
+            data[key]
+            !== undefined
+        ) {
+
+            return (
+                Number(
+                    data[key]
+                )
+                || 0
+            );
+
+        }
+
+    }
+
+
+    return 0;
+
+}
+
+
+
+async function loadStats() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/stats"
+            );
+
+
+        if (!response.ok) {
+            return;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        document
+            .getElementById(
+                "totalScans"
+            )
+            .textContent =
+                numberFrom(
+                    data,
+                    [
+                        "total",
+                        "total_scans"
+                    ]
+                );
+
+
+        document
+            .getElementById(
+                "safeScans"
+            )
+            .textContent =
+                numberFrom(
+                    data,
+                    [
+                        "safe",
+                        "safe_scans"
+                    ]
+                );
+
+
+        document
+            .getElementById(
+                "suspiciousScans"
+            )
+            .textContent =
+                numberFrom(
+                    data,
+                    [
+                        "suspicious",
+                        "suspicious_scans"
+                    ]
+                );
+
+
+        document
+            .getElementById(
+                "phishingScans"
+            )
+            .textContent =
+                numberFrom(
+                    data,
+                    [
+                        "phishing",
+                        "phishing_scans"
+                    ]
+                );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Stats error:",
+            error
+        );
+
+    }
+
+}
+
+
+
+/* ======================================
+   BULK FILE
+====================================== */
+
+function cleanBulkValue(value) {
+
+    return String(
+        value || ""
+    )
+    .trim()
+    .replace(
+        /^["']+|["']+$/g,
+        ""
+    );
+
+}
+
+
+
+function looksLikeURL(value) {
+
+    if (!value) {
+        return false;
+    }
+
+
+    const lower =
+        value.toLowerCase();
+
+
+    if (
+        [
+            "url",
+            "link",
+            "website",
+            "domain"
+        ].includes(lower)
+    ) {
+        return false;
+    }
+
+
+    if (value.includes(" ")) {
+        return false;
+    }
+
+
+    return (
+        value.startsWith(
+            "http://"
+        )
+        ||
+        value.startsWith(
+            "https://"
+        )
+        ||
+        value.startsWith(
+            "www."
+        )
+        ||
+        value.includes(".")
+    );
+
+}
+
+
+
+function parseBulkContent(
+    content
+) {
+
+    const all = [];
+
+
+    content
+        .split(/\r?\n/)
+        .forEach(line => {
+
+            line
+                .split(
+                    /[,;\t]/
+                )
+                .forEach(
+                    raw => {
+
+                        const value =
+                            cleanBulkValue(
+                                raw
+                            );
+
+
+                        if (
+                            looksLikeURL(
+                                value
+                            )
+                        ) {
+
+                            all.push(
+                                value
+                            );
+
+                        }
+
+                    }
+                );
+
+        });
+
+
+    const unique =
+        [
+            ...new Set(all)
+        ];
+
+
+    return {
+        all,
+        unique
+    };
+
+}
+
+
+
+function formatSize(bytes) {
+
+    if (
+        bytes < 1024
+    ) {
+        return bytes + " B";
+    }
+
+
+    if (
+        bytes
+        < 1024 * 1024
+    ) {
+
+        return (
+            bytes / 1024
+        ).toFixed(1)
+        + " KB";
+
+    }
+
+
+    return (
+        bytes
+        / 1024
+        / 1024
+    ).toFixed(2)
+    + " MB";
+
+}
+
+
+
+async function prepareBulkFile(
+    file
+) {
+
+    if (!file) {
+        return;
+    }
+
+
+    const lower =
+        file.name
+            .toLowerCase();
+
+
+    if (
+        !lower.endsWith(".txt")
+        &&
+        !lower.endsWith(".csv")
+    ) {
+
+        alert(
+            "Only TXT and CSV files are supported."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        file.size
+        > 5 * 1024 * 1024
+    ) {
+
+        alert(
+            "Maximum file size is 5 MB."
+        );
+
+        return;
+
+    }
+
+
+    const content =
+        await file.text();
+
+
+    const parsed =
+        parseBulkContent(
+            content
+        );
+
+
+    if (
+        !parsed.unique.length
+    ) {
+
+        alert(
+            "No URLs were found in the file."
+        );
+
+        return;
+
+    }
+
+
+    bulkFileUrls =
+        parsed.unique
+            .slice(
+                0,
+                500
+            );
+
+
+    document
+        .getElementById(
+            "bulkFileName"
+        )
+        .textContent =
+            file.name;
+
+
+    document
+        .getElementById(
+            "previewFileName"
+        )
+        .textContent =
+            file.name;
+
+
+    document
+        .getElementById(
+            "previewUrlCount"
+        )
+        .textContent =
+            parsed.unique.length;
+
+
+    document
+        .getElementById(
+            "previewDuplicates"
+        )
+        .textContent =
+            parsed.all.length
+            - parsed.unique.length;
+
+
+    document
+        .getElementById(
+            "previewFileSize"
+        )
+        .textContent =
+            formatSize(
+                file.size
+            );
+
+
+    document
+        .getElementById(
+            "bulkPreview"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+}
+
+
+
+document
+    .getElementById(
+        "bulkFileInput"
+    )
+    .addEventListener(
+        "change",
+        function () {
+
+            prepareBulkFile(
+                this.files[0]
+            );
+
+        }
+    );
+
+
+
+const dropZone =
+    document.getElementById(
+        "bulkDropZone"
+    );
+
+
+dropZone.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+        dropZone.classList.add(
+            "drag-active"
+        );
+
+    }
+);
+
+
+dropZone.addEventListener(
+    "dragleave",
+    () => {
+
+        dropZone.classList.remove(
+            "drag-active"
+        );
+
+    }
+);
+
+
+dropZone.addEventListener(
+    "drop",
+    event => {
+
+        event.preventDefault();
+
+
+        dropZone.classList.remove(
+            "drag-active"
+        );
+
+
+        const file =
+            event.dataTransfer
+                .files[0];
+
+
+        prepareBulkFile(
+            file
+        );
+
+    }
+);
+
+
+
+async function scanBulkURL(url) {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/scan",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+                            url: url
+                        })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            return {
+                url,
+                status: "ERROR",
+                risk_score: "-",
+                rule_status: "-",
+                ml_prediction: "-",
+                ml_probability: "-",
+                error:
+                    data.error
+                    || "Scan failed"
+            };
+
+        }
+
+
+        return {
+
+            url:
+                data.url
+                || url,
+
+            status:
+                data.status
+                || "-",
+
+            risk_score:
+                data.risk_score
+                ?? 0,
+
+            rule_status:
+                data.rule_status
+                || "-",
+
+            ml_prediction:
+                data.ml_prediction
+                || "-",
+
+            ml_probability:
+                data.ml_probability
+                ?? "-",
+
+            error: ""
+
+        };
+
+
+    }
+
+    catch (_) {
+
+        return {
+
+            url,
+            status: "ERROR",
+            risk_score: "-",
+            rule_status: "-",
+            ml_prediction: "-",
+            ml_probability: "-",
+            error:
+                "Connection failed"
+
+        };
+
+    }
+
+}
+
+
+
+async function startBulkScan() {
+
+    if (
+        !bulkFileUrls.length
+    ) {
+
+        alert(
+            "Choose a TXT or CSV file first."
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "bulkStartButton"
+        );
+
+
+    button.disabled =
+        true;
+
+
+    button.textContent =
+        "Scanning...";
+
+
+    bulkResultsData = [];
+
+
+    document
+        .getElementById(
+            "bulkResultsBody"
+        )
+        .textContent =
+            "";
+
+
+    document
+        .getElementById(
+            "bulkProgress"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+
+    document
+        .getElementById(
+            "bulkResults"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+
+    document
+        .getElementById(
+            "bulkSummary"
+        )
+        .classList.add(
+            "hidden"
+        );
+
+
+    let completed = 0;
+
+
+    const concurrency = 5;
+
+
+    for (
+        let i = 0;
+        i < bulkFileUrls.length;
+        i += concurrency
+    ) {
+
+        const batch =
+            bulkFileUrls.slice(
+                i,
+                i + concurrency
+            );
+
+
+        const results =
+            await Promise.all(
+                batch.map(
+                    scanBulkURL
+                )
+            );
+
+
+        results.forEach(
+            result => {
+
+                bulkResultsData.push(
+                    result
+                );
+
+
+                appendBulkResult(
+                    result
+                );
+
+
+                completed++;
+
+
+                updateBulkProgress(
+                    completed,
+                    bulkFileUrls.length
+                );
+
+            }
+        );
+
+    }
+
+
+    updateBulkSummary();
+
+
+    document
+        .getElementById(
+            "bulkSummary"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+
+    button.disabled =
+        false;
+
+
+    button.textContent =
+        "Start Bulk Scan";
+
+
+    await loadStats();
+
+    await loadHistory();
+
+}
+
+
+
+function updateBulkProgress(
+    completed,
+    total
+) {
+
+    const percentage =
+        Math.round(
+            completed
+            / total
+            * 100
+        );
+
+
+    document
+        .getElementById(
+            "bulkProgressText"
+        )
+        .textContent =
+            `Scanned ${completed} of ${total} URLs`;
+
+
+    document
+        .getElementById(
+            "bulkProgressPercent"
+        )
+        .textContent =
+            percentage + "%";
+
+
+    document
+        .getElementById(
+            "bulkProgressBar"
+        )
+        .style.width =
+            percentage + "%";
+
+}
+
+
+
+function appendTextCell(
+    row,
+    value,
+    className=""
+) {
+
+    const td =
+        document.createElement(
+            "td"
+        );
+
+
+    td.textContent =
+        value ?? "-";
+
+
+    if (className) {
+
+        td.className =
+            className;
+
+    }
+
+
+    row.appendChild(
+        td
+    );
+
+}
+
+
+
+function appendBulkResult(
+    result
+) {
+
+    const row =
+        document.createElement(
+            "tr"
+        );
+
+
+    appendTextCell(
+        row,
+        result.url,
+        "url-cell"
+    );
+
+
+    appendTextCell(
+        row,
+        result.status,
+        verdictClass(
+            result.status
+        )
+    );
+
+
+    appendTextCell(
+        row,
+        result.risk_score === "-"
+            ? "-"
+            : result.risk_score
+                + "/100"
+    );
+
+
+    appendTextCell(
+        row,
+        result.rule_status
+    );
+
+
+    appendTextCell(
+        row,
+        result.ml_prediction
+    );
+
+
+    appendTextCell(
+        row,
+        result.ml_probability === "-"
+            ? "-"
+            : result.ml_probability
+                + "%"
+    );
+
+
+    document
+        .getElementById(
+            "bulkResultsBody"
+        )
+        .appendChild(
+            row
+        );
+
+}
+
+
+
+function updateBulkSummary() {
+
+    const safe =
+        bulkResultsData.filter(
+            item =>
+                item.status
+                === "SAFE"
+        ).length;
+
+
+    const suspicious =
+        bulkResultsData.filter(
+            item =>
+                item.status
+                === "SUSPICIOUS"
+        ).length;
+
+
+    const phishing =
+        bulkResultsData.filter(
+            item =>
+                item.status
+                === "PHISHING"
+        ).length;
+
+
+    const errors =
+        bulkResultsData.filter(
+            item =>
+                item.status
+                === "ERROR"
+        ).length;
+
+
+    document
+        .getElementById(
+            "bulkProcessed"
+        )
+        .textContent =
+            bulkResultsData.length;
+
+
+    document
+        .getElementById(
+            "bulkSafe"
+        )
+        .textContent =
+            safe;
+
+
+    document
+        .getElementById(
+            "bulkSuspicious"
+        )
+        .textContent =
+            suspicious;
+
+
+    document
+        .getElementById(
+            "bulkPhishing"
+        )
+        .textContent =
+            phishing;
+
+
+    document
+        .getElementById(
+            "bulkErrors"
+        )
+        .textContent =
+            errors;
+
+}
+
+
+
+/* ======================================
+   HISTORY
+====================================== */
+
+function verdictClass(
+    status
+) {
+
+    if (
+        status === "SAFE"
+    ) {
+        return "table-safe";
+    }
+
+
+    if (
+        status === "SUSPICIOUS"
+    ) {
+        return "table-warning";
+    }
+
+
+    if (
+        status === "PHISHING"
+    ) {
+        return "table-danger";
+    }
+
+
+    return "";
+
+}
+
+
+
+async function loadHistory() {
+
+    const body =
+        document.getElementById(
+            "historyBody"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/history"
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error();
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        userHistoryData =
+            Array.isArray(data)
+            ? data
+            : (
+                data.history
+                ||
+                data.scans
+                ||
+                []
+            );
+
+
+        renderHistory(
+            userHistoryData
+        );
+
+
+    }
+
+    catch (_) {
+
+        body.innerHTML =
+            '<tr><td colspan="6">Unable to load scan history.</td></tr>';
+
+    }
+
+}
+
+
+
+function renderHistory(
+    scans
+) {
+
+    const body =
+        document.getElementById(
+            "historyBody"
+        );
+
+
+    body.textContent =
+        "";
+
+
+    if (!scans.length) {
+
+        const row =
+            document.createElement(
+                "tr"
+            );
+
+
+        const cell =
+            document.createElement(
+                "td"
+            );
+
+
+        cell.colSpan = 6;
+
+
+        cell.textContent =
+            "No scans yet. Analyse your first URL above.";
+
+
+        row.appendChild(
+            cell
+        );
+
+
+        body.appendChild(
+            row
+        );
+
+
+        return;
+
+    }
+
+
+    scans
+        .slice(0, 20)
+        .forEach(
+            scan => {
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                appendTextCell(
+                    row,
+                    scan.url,
+                    "url-cell"
+                );
+
+
+                appendTextCell(
+                    row,
+                    scan.status,
+                    verdictClass(
+                        scan.status
+                    )
+                );
+
+
+                appendTextCell(
+                    row,
+                    (
+                        scan.risk_score
+                        ?? "-"
+                    )
+                    + "/100"
+                );
+
+
+                appendTextCell(
+                    row,
+                    scan.rule_status
+                    || "-"
+                );
+
+
+                appendTextCell(
+                    row,
+                    scan.ml_prediction
+                    || "-"
+                );
+
+
+                appendTextCell(
+                    row,
+                    scan.scanned_at
+                    || "-"
+                );
+
+
+                body.appendChild(
+                    row
+                );
+
+            }
+        );
+
+}
+
+
+
+/* ======================================
+   CSV
+====================================== */
+
+function escapeCSVValue(value) {
+
+    let text =
+        String(
+            value ?? ""
+        );
+
+
+    /*
+      Prevent spreadsheet formula execution
+      when CSV is opened in Excel.
+    */
+
+    if (
+        /^[=+\-@]/.test(
+            text
+        )
+    ) {
+
+        text =
+            "'" + text;
+
+    }
+
+
+    return (
+        '"'
+        + text.replace(
+            /"/g,
+            '""'
+        )
+        + '"'
+    );
+
+}
+
+
+
+function exportCSV(
+    rows,
+    filename
+) {
+
+    const csv =
+        rows
+            .map(
+                row =>
+                    row.map(
+                        escapeCSVValue
+                    )
+                    .join(",")
+            )
+            .join("\n");
+
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                    "text/csv;charset=utf-8"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        filename;
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+}
+
+
+
+function downloadBulkCSV() {
+
+    if (
+        !bulkResultsData.length
+    ) {
+
+        alert(
+            "No bulk scan data available."
+        );
+
+        return;
+
+    }
+
+
+    const rows = [[
+        "URL",
+        "Final Verdict",
+        "Risk Score",
+        "Rule Engine",
+        "ML Prediction",
+        "ML Probability"
+    ]];
+
+
+    bulkResultsData.forEach(
+        item => {
+
+            rows.push([
+                item.url,
+                item.status,
+                item.risk_score,
+                item.rule_status,
+                item.ml_prediction,
+                item.ml_probability
+            ]);
+
+        }
+    );
+
+
+    exportCSV(
+        rows,
+        "phishguard_bulk_scan.csv"
+    );
+
+}
+
+
+
+function downloadHistoryCSV() {
+
+    if (
+        !userHistoryData.length
+    ) {
+
+        alert(
+            "No scan history available."
+        );
+
+        return;
+
+    }
+
+
+    const rows = [[
+        "URL",
+        "Final Verdict",
+        "Risk Score",
+        "Rule Engine",
+        "ML Prediction",
+        "ML Probability",
+        "Scanned At"
+    ]];
+
+
+    userHistoryData.forEach(
+        item => {
+
+            rows.push([
+                item.url,
+                item.status,
+                item.risk_score,
+                item.rule_status,
+                item.ml_prediction,
+                item.ml_probability,
+                item.scanned_at
+            ]);
+
+        }
+    );
+
+
+    exportCSV(
+        rows,
+        "phishguard_my_history.csv"
+    );
+
+}
+
+
+
+/* ======================================
+   SEARCH
+====================================== */
+
+document
+    .getElementById(
+        "historySearch"
+    )
+    .addEventListener(
+        "input",
+        function () {
+
+            const query =
+                this.value
+                    .toLowerCase();
+
+
+            const filtered =
+                userHistoryData.filter(
+                    scan =>
+
+                        String(
+                            scan.url || ""
+                        )
+                        .toLowerCase()
+                        .includes(query)
+
+                        ||
+
+                        String(
+                            scan.status || ""
+                        )
+                        .toLowerCase()
+                        .includes(query)
+                );
+
+
+            renderHistory(
+                filtered
+            );
+
+        }
+    );
+
+
+
+document
+    .getElementById(
+        "bulkSearch"
+    )
+    .addEventListener(
+        "input",
+        function () {
+
+            const search =
+                this.value
+                    .toLowerCase();
+
+
+            document
+                .querySelectorAll(
+                    "#bulkResultsBody tr"
+                )
+                .forEach(
+                    row => {
+
+                        row.style.display =
+                            row.textContent
+                                .toLowerCase()
+                                .includes(
+                                    search
+                                )
+                            ? ""
+                            : "none";
+
+                    }
+                );
+
+        }
+    );
+
+
+
+document
+    .getElementById(
+        "urlInput"
+    )
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key
+                === "Enter"
+            ) {
+
+                scanSingleURL();
+
+            }
+
+        }
+    );
+
+
+
+/* ======================================
+   START
+====================================== */
+
+loadStats();
+
+loadHistory();
+
+
+</script>
+
+
+
+<script src="/static/ui_animations.js"></script>
+
+<script src="/static/admin_scanner_fix.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Users | PhishGuard Cloud</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/admin.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/static/admin_motion.css"
+    >
+
+    <style>
+
+        .users-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .users-header h1 {
+            margin-bottom: 5px;
+        }
+
+        .users-subtitle {
+            opacity: .65;
+        }
+
+        .users-search {
+            width: min(330px, 100%);
+            padding: 13px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.12);
+            background: rgba(255,255,255,.05);
+            color: white;
+            outline: none;
+        }
+
+        .users-search:focus {
+            border-color: #35e6aa;
+        }
+
+        .users-card {
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255,255,255,.025);
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+
+        .users-table th {
+            opacity: .65;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+        }
+
+        .user-name {
+            font-weight: 700;
+        }
+
+        .user-email {
+            opacity: .65;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: rgba(53,230,170,.12);
+            color: #35e6aa;
+        }
+
+        .status-disabled {
+            background: rgba(255,184,77,.12);
+            color: #ffb84d;
+        }
+
+        .admin-badge {
+            background: rgba(85,140,255,.12);
+            color: #8db2ff;
+        }
+
+        .delete-user-btn {
+            border: 1px solid rgba(255,80,80,.25);
+            background: rgba(255,80,80,.08);
+            color: #ff7070;
+            padding: 9px 13px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .delete-user-btn:hover {
+            background: rgba(255,80,80,.16);
+        }
+
+        .protected {
+            opacity: .45;
+            font-size: 12px;
+        }
+
+        .admin-message {
+            padding: 13px 16px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+        }
+
+        .success-message {
+            background: rgba(53,230,170,.1);
+            border: 1px solid rgba(53,230,170,.2);
+            color: #35e6aa;
+        }
+
+        .error-message {
+            background: rgba(255,80,80,.1);
+            border: 1px solid rgba(255,80,80,.2);
+            color: #ff8080;
+        }
+
+        @media(max-width: 850px) {
+
+            .users-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .users-card {
+                overflow-x: auto;
+            }
+
+            .users-table {
+                min-width: 760px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <aside class="admin-sidebar sidebar">
+
+        <div class="brand">
+            <strong>PhishGuard</strong>
+            <span>Cloud Security</span>
+        </div>
+
+        <nav>
+
+            <a href="/admin">
+                Overview
+            </a>
+
+            <a href="/admin/scanner">
+                URL Scanner
+            </a>
+
+            <a href="/admin/users" class="active">
+                Users
+            </a>
+
+            <a href="/admin/history">
+                Scan History
+            </a>
+
+            <a href="/admin/alerts">
+                Threat Alerts
+            </a>
+
+            <a href="/admin/analytics">
+                Analytics
+            </a>
+
+            <a href="/admin/activity">
+                Activity
+            </a>
+
+            <a href="/admin/cloud-status">
+                Cloud Status
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main
+        class="admin-main main-content"
+        data-admin-content
+    >
+
+        <div class="users-header">
+
+            <div>
+                <div class="users-subtitle">
+                    ADMINISTRATION
+                </div>
+
+                <h1>User Management</h1>
+
+                <div class="users-subtitle">
+                    Manage registered PhishGuard accounts
+                </div>
+            </div>
+
+            <input
+                id="userSearch"
+                class="users-search"
+                type="search"
+                placeholder="Search name or email..."
+            >
+
+        </div>
+
+
+        {% if request.args.get("deleted") %}
+
+        <div class="admin-message success-message">
+            ✓ User deleted successfully.
+        </div>
+
+        {% endif %}
+
+
+        {% if request.args.get("error") == "admin" %}
+
+        <div class="admin-message error-message">
+            Admin accounts are protected and cannot be deleted here.
+        </div>
+
+        {% endif %}
+
+
+        {% if request.args.get("error") == "self" %}
+
+        <div class="admin-message error-message">
+            You cannot delete your own admin account.
+        </div>
+
+        {% endif %}
+
+
+        {% if request.args.get("error") == "database" %}
+
+        <div class="admin-message error-message">
+            User could not be deleted because of a database error.
+        </div>
+
+        {% endif %}
+
+
+        <div class="users-card">
+
+            <table class="users-table">
+
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="usersBody">
+
+                {% for user in users %}
+
+                    <tr
+                        data-search="{{ user['name']|lower }} {{ user['email']|lower }}"
+                    >
+
+                        <td>
+                            <div class="user-name">
+                                {{ user["name"] }}
+                            </div>
+
+                            <div class="user-email">
+                                {{ user["email"] }}
+                            </div>
+                        </td>
+
+
+                        <td>
+
+                            {% if user["role"] == "admin" %}
+
+                                <span class="status-badge admin-badge">
+                                    Admin
+                                </span>
+
+                            {% else %}
+
+                                <span>
+                                    User
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if has_is_active %}
+
+                                {% if user["is_active"] %}
+
+                                    <span class="status-badge status-active">
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge status-disabled">
+                                        Disabled
+                                    </span>
+
+                                {% endif %}
+
+                            {% else %}
+
+                                <span class="status-badge status-active">
+                                    Active
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+                            {{ user["created_at"] or "—" }}
+                        </td>
+
+
+                        <td>
+
+                            {% if user["role"] != "admin" %}
+
+                            <form
+                                method="POST"
+                                action="/admin/users/{{ user['id'] }}/delete"
+                                onsubmit="return confirmDeleteUser(this)"
+                            >
+
+                                {% if csrf_token is defined %}
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+                                {% endif %}
+
+                                <input
+                                    type="hidden"
+                                    name="user_name"
+                                    value="{{ user['name'] }}"
+                                >
+
+                                <button
+                                    class="delete-user-btn"
+                                    type="submit"
+                                >
+                                    🗑 Delete
+                                </button>
+
+                            </form>
+
+                            {% else %}
+
+                                <span class="protected">
+                                    🔒 Protected
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+function confirmDeleteUser(form) {
+
+    const name =
+        form.querySelector(
+            'input[name="user_name"]'
+        ).value;
+
+    return confirm(
+        'Delete "' + name + '"?\n\n' +
+        'This will permanently remove the user and their related records.'
+    );
+}
+
+
+const userSearch =
+    document.getElementById("userSearch");
+
+if (userSearch) {
+
+    userSearch.addEventListener(
+        "input",
+        function () {
+
+            const query =
+                this.value
+                    .trim()
+                    .toLowerCase();
+
+            document.querySelectorAll(
+                "#usersBody tr"
+            ).forEach(row => {
+
+                row.style.display =
+                    row.dataset.search.includes(query)
+                    ? ""
+                    : "none";
+
+            });
+        }
+    );
+}
+
+</script>
+
+<script src="/static/admin_motion.js"></script>
+
+</body>
+</html>

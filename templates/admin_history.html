@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Scan History | PhishGuard
+</title>
+
+<link
+    rel="stylesheet"
+    href="/static/admin.css"
+>
+
+<link rel="stylesheet" href="/static/admin_motion.css">
+</head>
+
+
+<body>
+
+<div class="app-layout">
+
+
+<aside class="sidebar">
+
+    <div>
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🛡
+            </div>
+
+            <div>
+                <h2>PhishGuard</h2>
+                <span>Cloud Security</span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <a href="/admin">
+                <span>▦</span>
+                Overview
+            </a>
+
+            <a href="/admin/scanner">
+                <span>⌗</span>
+                URL Scanner
+            </a>
+
+            <a
+                href="/admin/history"
+                class="active"
+            >
+                <span>◷</span>
+                Scan History
+            </a>
+
+            <a href="/admin/activity">
+                <span>♙</span>
+                Admin Panel
+            </a>
+
+            <a href="/admin/cloud-status">
+                <span>☁</span>
+                Cloud Status
+            </a>
+
+        </nav>
+
+    </div>
+
+
+    <div class="engine-card">
+
+        <div class="engine-line">
+            <span class="online-dot"></span>
+            <strong>Cloud Engine Online</strong>
+        </div>
+
+        <p>
+            History database connected
+        </p>
+
+    </div>
+
+</aside>
+
+
+
+<main class="main-content">
+
+
+<header class="top-header">
+
+    <div>
+
+        <p class="section-label">
+            SECURITY OPERATIONS
+        </p>
+
+        <h1>
+            Scan History
+        </h1>
+
+        <p class="subtitle">
+            Review previous phishing detection activity.
+        </p>
+
+    </div>
+
+</header>
+
+
+
+<section class="panel history-page-panel">
+
+
+<div class="history-toolbar">
+
+    <input
+        id="historySearch"
+        type="text"
+        placeholder="Search URL..."
+    >
+
+
+    <select id="statusFilter">
+
+        <option value="">
+            All Verdicts
+        </option>
+
+        <option value="SAFE">
+            Safe
+        </option>
+
+        <option value="SUSPICIOUS">
+            Suspicious
+        </option>
+
+        <option value="PHISHING">
+            Dangerous
+        </option>
+
+    </select>
+
+
+    <button
+        class="report-button"
+        onclick="downloadHistoryReport()"
+    >
+        ↓ Export CSV
+    </button>
+
+</div>
+
+
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+    <th>URL</th>
+    <th>FINAL</th>
+    <th>RULE ENGINE</th>
+    <th>ML</th>
+    <th>ML SCORE</th>
+    <th>RISK</th>
+    <th>TIME</th>
+</tr>
+
+</thead>
+
+
+<tbody id="historyBody">
+
+<tr>
+    <td colspan="7">
+        Loading history...
+    </td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<footer>
+
+    <span>
+        PhishGuard Cloud Security Platform
+    </span>
+
+    <a href="/logout">
+        Logout
+    </a>
+
+</footer>
+
+
+</main>
+
+</div>
+
+
+
+<script>
+
+let historyData = [];
+
+
+function addCell(row, value) {
+
+    const cell =
+        document.createElement("td");
+
+    cell.textContent =
+        value ?? "-";
+
+    row.appendChild(cell);
+
+}
+
+
+
+async function loadHistory() {
+
+    const response =
+        await fetch("/api/history");
+
+
+    if (!response.ok) {
+
+        document.getElementById(
+            "historyBody"
+        ).innerHTML =
+            '<tr><td colspan="7">Unable to load history.</td></tr>';
+
+        return;
+
+    }
+
+
+    const data =
+        await response.json();
+
+
+    historyData =
+        Array.isArray(data)
+            ? data
+            : (
+                data.history ||
+                data.scans ||
+                []
+            );
+
+
+    renderHistory();
+
+}
+
+
+
+function renderHistory() {
+
+    const body =
+        document.getElementById(
+            "historyBody"
+        );
+
+
+    const search =
+        document.getElementById(
+            "historySearch"
+        ).value
+         .toLowerCase();
+
+
+    const status =
+        document.getElementById(
+            "statusFilter"
+        ).value;
+
+
+    body.textContent = "";
+
+
+    const filtered =
+        historyData.filter(scan => {
+
+            const searchMatch =
+                String(scan.url || "")
+                    .toLowerCase()
+                    .includes(search);
+
+
+            const statusMatch =
+                !status ||
+                scan.status === status;
+
+
+            return (
+                searchMatch &&
+                statusMatch
+            );
+
+        });
+
+
+    if (!filtered.length) {
+
+        const row =
+            document.createElement("tr");
+
+        const cell =
+            document.createElement("td");
+
+        cell.colSpan = 7;
+
+        cell.textContent =
+            "No matching scans found.";
+
+        row.appendChild(cell);
+        body.appendChild(row);
+
+        return;
+
+    }
+
+
+    filtered.forEach(scan => {
+
+        const row =
+            document.createElement("tr");
+
+
+        addCell(
+            row,
+            scan.url
+        );
+
+        addCell(
+            row,
+            scan.status
+        );
+
+        addCell(
+            row,
+            scan.rule_status
+        );
+
+        addCell(
+            row,
+            scan.ml_prediction
+        );
+
+        addCell(
+            row,
+            scan.ml_probability !== null &&
+            scan.ml_probability !== undefined
+                ? scan.ml_probability + "%"
+                : "-"
+        );
+
+        addCell(
+            row,
+            (scan.risk_score ?? "-") + "/100"
+        );
+
+        addCell(
+            row,
+            scan.scanned_at
+        );
+
+
+        body.appendChild(row);
+
+    });
+
+}
+
+
+
+function downloadHistoryReport() {
+
+    if (!historyData.length) {
+        alert("No data available.");
+        return;
+    }
+
+
+    const rows = [[
+        "URL",
+        "Final Verdict",
+        "Rule Engine",
+        "ML Prediction",
+        "ML Probability",
+        "Risk Score",
+        "Scanned At"
+    ]];
+
+
+    historyData.forEach(scan => {
+
+        rows.push([
+            scan.url || "",
+            scan.status || "",
+            scan.rule_status || "",
+            scan.ml_prediction || "",
+            scan.ml_probability ?? "",
+            scan.risk_score ?? "",
+            scan.scanned_at || ""
+        ]);
+
+    });
+
+
+    const csv =
+        rows
+            .map(
+                row =>
+                    row.map(
+                        value =>
+                            `"${String(value)
+                                .replace(/"/g, '""')}"`
+                    ).join(",")
+            )
+            .join("\n");
+
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        URL.createObjectURL(blob);
+
+
+    link.download =
+        "phishguard_full_history.csv";
+
+
+    link.click();
+
+}
+
+
+document
+    .getElementById(
+        "historySearch"
+    )
+    .addEventListener(
+        "input",
+        renderHistory
+    );
+
+
+document
+    .getElementById(
+        "statusFilter"
+    )
+    .addEventListener(
+        "change",
+        renderHistory
+    );
+
+
+loadHistory();
+
+</script>
+
+
+<script src="/static/admin_motion.js"></script>
+</body>
+</html>

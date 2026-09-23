@@ -1,0 +1,1331 @@
+<!DOCTYPE html>\n{% set total_scans = total_scans|default(0) %}
+{% set safe_scans = safe_scans|default(0) %}
+{% set suspicious_scans = suspicious_scans|default(0) %}
+{% set phishing_scans = phishing_scans|default(0) %}
+{% set recent_scans = recent_scans|default([]) %}
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Admin Dashboard | PhishGuard Cloud
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/static/admin.css"
+    >
+<link rel="stylesheet" href="/static/admin_motion.css">
+
+<link rel="stylesheet" href="/static/admin_user_control.css">
+</head>
+
+
+<body>
+
+<div class="app-layout">
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div>
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    🛡
+                </div>
+
+                <div>
+                    <h2>PhishGuard</h2>
+                    <span>Cloud Security</span>
+                </div>
+
+            </div>
+
+
+            <nav class="sidebar-menu">
+
+                <a
+                    href="/admin"
+                    class="active"
+                >
+                    <span>▦</span>
+                    Overview
+                </a>
+
+
+                <a href="/admin/scanner">
+                    <span>⌗</span>
+                    URL Scanner
+                </a>
+
+
+                <a href="/admin/history">
+                    <span>◷</span>
+                    Scan History
+                </a>
+
+
+                <a href="/admin/activity">
+                    <span>♙</span>
+                    Admin Panel
+                </a>
+
+
+                <a href="/admin/analytics">
+                    <span>▥</span>
+                    Analytics
+                </a>
+
+                <a href="/admin/alerts">
+                    <span>⚠</span>
+                    Threat Alerts
+                </a>
+
+                <a href="/admin/blocked-domains">
+                    <span>⛔</span>
+                    Blocked Domains
+                </a>
+
+                <a href="/admin/audit-logs">
+                    <span>≡</span>
+                    Audit Logs
+                </a>
+
+                <a href="/admin/cloud-status">
+                    <span>☁</span>
+                    Cloud Status
+                </a>
+
+            </nav>
+
+        </div>
+
+
+        <div class="engine-card">
+
+            <div class="engine-line">
+
+                <span class="online-dot"></span>
+
+                <strong>
+                    Cloud Engine Online
+                </strong>
+
+            </div>
+
+            <p>
+                Rules and ML model active
+            </p>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ================= CONTENT ================= -->
+
+    <main class="main-content">
+
+
+        <!-- HEADER -->
+
+        <header class="top-header">
+
+            <div>
+
+                <p class="section-label">
+                    SECURITY OPERATIONS
+                </p>
+
+                <h1>
+                    Threat Overview
+                </h1>
+
+                <p class="subtitle">
+                    Scan links before they become incidents.
+                </p>
+
+            </div>
+
+
+            <div class="admin-profile">
+
+                <div class="avatar">
+                    {{ session.get("name", "A")[:2]|upper }}
+                </div>
+
+                <div>
+
+                    <strong>
+                        {{ session.get("name", "Administrator") }}
+                    </strong>
+
+                    <span>
+                        Administrator
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ================= STATS ================= -->
+
+        <section class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon total-icon">
+                    〽
+                </div>
+
+                <p>
+                    Total scans
+                </p>
+
+                <strong>
+                    {{ total_scans or 0 }}
+                </strong>
+
+                <small>
+                    Live data
+                </small>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon safe-icon">
+                    ✓
+                </div>
+
+                <p>
+                    Safe URLs
+                </p>
+
+                <strong class="safe-text">
+                    {{ safe_scans or 0 }}
+                </strong>
+
+                <small>
+                    Live data
+                </small>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon suspicious-icon">
+                    ⚠
+                </div>
+
+                <p>
+                    Suspicious
+                </p>
+
+                <strong class="suspicious-text">
+                    {{ suspicious_scans or 0 }}
+                </strong>
+
+                <small>
+                    Live data
+                </small>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon danger-icon">
+                    !
+                </div>
+
+                <p>
+                    Dangerous
+                </p>
+
+                <strong class="danger-text">
+                    {{ phishing_scans or 0 }}
+                </strong>
+
+                <small>
+                    Live data
+                </small>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= MODE SWITCH ================= -->
+
+        <div class="scan-mode">
+
+            <button
+                class="mode-button active"
+                id="singleModeButton"
+                onclick="showSingleMode()"
+            >
+                Single URL
+            </button>
+
+            <button
+                class="mode-button"
+                id="bulkModeButton"
+                onclick="showBulkMode()"
+            >
+                Bulk file scan
+            </button>
+
+        </div>
+
+
+
+        <!-- ================= SINGLE SCAN ================= -->
+
+        <section
+            class="scanner-panel"
+            id="scanner"
+        >
+            <div id="singleScanner">
+
+            <div class="scanner-heading">
+
+                <div class="scanner-logo">
+                    ⌗
+                </div>
+
+                <div>
+
+                    <h2>
+                        Analyse a suspicious link
+                    </h2>
+
+                    <p>
+                        Hybrid Rule Engine + Machine Learning detection.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="scanner-form">
+
+                <input
+                    id="adminUrlInput"
+                    type="text"
+                    placeholder="https://example.com/login"
+                >
+
+                <button
+                    type="button"
+                    onclick="adminScanURL()"
+                >
+                    Scan URL
+                </button>
+
+            </div>
+
+
+            <div
+                id="adminScanResult"
+                class="scan-result hidden"
+            >
+
+                <div>
+
+                    <span>
+                        Final Verdict
+                    </span>
+
+                    <strong id="adminFinalStatus">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Risk Score
+                    </span>
+
+                    <strong id="adminRiskScore">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Rule Engine
+                    </span>
+
+                    <strong id="adminRuleStatus">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        ML Prediction
+                    </span>
+
+                    <strong id="adminMlPrediction">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        ML Score
+                    </span>
+
+                    <strong id="adminMlProbability">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+            </div>
+
+        </section>
+
+        <!-- ================= BULK SCAN ================= -->
+
+        <section
+            class="scanner-panel hidden"
+            id="bulkScanner"
+        >
+
+            <div class="scanner-heading">
+
+                <div class="scanner-logo">
+                    ⇧
+                </div>
+
+                <div>
+
+                    <h2>
+                        Bulk URL Scanner
+                    </h2>
+
+                    <p>
+                        Upload a text or CSV file containing URLs.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="bulk-box">
+
+                <input
+                    type="file"
+                    id="bulkFile"
+                    accept=".txt,.csv"
+                >
+
+                <button
+                    type="button"
+                    onclick="bulkScan()"
+                >
+                    Start Bulk Scan
+                </button>
+
+            </div>
+
+
+            <div id="bulkResults"></div>
+
+        </section>
+
+
+
+        <!-- ================= BOTTOM ================= -->
+
+        <section class="dashboard-bottom">
+
+
+            <!-- RECENT SCANS -->
+
+            <div class="panel recent-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <h2>
+                            Recent scans
+                        </h2>
+
+                        <p>
+                            Saved permanently in PhishGuard database
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="report-button"
+                        onclick="downloadReport()"
+                    >
+                        ↓ Report
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>DOMAIN</th>
+                                <th>RISK</th>
+                                <th>SCORE</th>
+                                <th>TIME</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for scan in recent_scans %}
+
+                            <tr>
+
+                                <td class="domain-cell">
+                                    ◉ {{ scan.url }}
+                                </td>
+
+                                <td>
+
+                                    <span
+                                        class="
+                                        risk-badge
+                                        {{ scan.status|lower }}
+                                        "
+                                    >
+                                        {{ scan.status }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    {{ scan.risk_score }}/100
+                                </td>
+
+                                <td>
+                                    {{ scan.scanned_at }}
+                                </td>
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+
+                                <td colspan="4">
+                                    No scans available.
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- SECURITY CONTROLS -->
+
+            <div class="panel security-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <h2>
+                            Admin security controls
+                        </h2>
+
+                        <p>
+                            Monitor threats and detection distribution
+                        </p>
+
+                    </div>
+
+                    <span class="chart-symbol">
+                        ▥
+                    </span>
+
+                </div>
+
+
+                {% set total = total_scans or 0 %}
+
+
+                <div class="progress-item">
+
+                    <div>
+                        <span>Safe</span>
+
+                        <strong>
+                            {% if total %}
+                                {{ ((safe_scans / total) * 100)|round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+                    <div class="progress-bar">
+
+                        <span
+                            class="safe-bar"
+                            style="
+                            width:
+                            {% if total %}
+                                {{ ((safe_scans / total) * 100)|round(1) }}
+                            {% else %}
+                                0
+                            {% endif %}%;
+                            "
+                        ></span>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="progress-item">
+
+                    <div>
+
+                        <span>
+                            Suspicious
+                        </span>
+
+                        <strong>
+                            {% if total %}
+                                {{ ((suspicious_scans / total) * 100)|round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+                    <div class="progress-bar">
+
+                        <span
+                            class="suspicious-bar"
+                            style="
+                            width:
+                            {% if total %}
+                                {{ ((suspicious_scans / total) * 100)|round(1) }}
+                            {% else %}
+                                0
+                            {% endif %}%;
+                            "
+                        ></span>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="progress-item">
+
+                    <div>
+
+                        <span>
+                            Dangerous
+                        </span>
+
+                        <strong>
+                            {% if total %}
+                                {{ ((phishing_scans / total) * 100)|round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+                    <div class="progress-bar">
+
+                        <span
+                            class="danger-bar"
+                            style="
+                            width:
+                            {% if total %}
+                                {{ ((phishing_scans / total) * 100)|round(1) }}
+                            {% else %}
+                                0
+                            {% endif %}%;
+                            "
+                        ></span>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    class="manage-button"
+                    href="/admin/activity"
+                >
+                    Manage Users →
+                </a>
+
+                <a
+                    class="manage-button"
+                    href="/admin/blocked-domains"
+                >
+                    Manage Blocked Domains →
+                </a>
+
+            </div>
+
+        </section>
+
+
+
+        <footer>
+
+            <span>
+                PhishGuard Cloud Security Platform
+            </span>
+
+            <a href="/logout">
+                Logout
+            </a>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+
+<script>
+
+function showSingleMode() {
+
+    document
+        .getElementById("singleScanner")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("bulkScanner")
+        .classList.add("hidden");
+
+    document
+        .getElementById("singleModeButton")
+        .classList.add("active");
+
+    document
+        .getElementById("bulkModeButton")
+        .classList.remove("active");
+}
+
+
+function showBulkMode() {
+
+    document
+        .getElementById("singleScanner")
+        .classList.add("hidden");
+
+    document
+        .getElementById("bulkScanner")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("singleModeButton")
+        .classList.remove("active");
+
+    document
+        .getElementById("bulkModeButton")
+        .classList.add("active");
+}
+
+
+
+async function adminScanURL() {
+
+    const input =
+        document.getElementById(
+            "adminUrlInput"
+        );
+
+    const url =
+        input.value.trim();
+
+    if (!url) {
+
+        alert(
+            "Please enter a URL."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/scan",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            url: url
+                        })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                data.error ||
+                "Unable to scan URL."
+            );
+
+            return;
+        }
+
+
+        document
+            .getElementById(
+                "adminFinalStatus"
+            )
+            .textContent =
+                data.status;
+
+
+        document
+            .getElementById(
+                "adminRiskScore"
+            )
+            .textContent =
+                data.risk_score + "/100";
+
+
+        document
+            .getElementById(
+                "adminRuleStatus"
+            )
+            .textContent =
+                data.rule_status;
+
+
+        document
+            .getElementById(
+                "adminMlPrediction"
+            )
+            .textContent =
+                data.ml_prediction;
+
+
+        document
+            .getElementById(
+                "adminMlProbability"
+            )
+            .textContent =
+                data.ml_probability + "%";
+
+
+        document
+            .getElementById(
+                "adminScanResult"
+            )
+            .classList.remove("hidden");
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Server connection failed."
+        );
+
+    }
+
+}
+
+
+
+async function bulkScan() {
+
+    const fileInput =
+        document.getElementById("bulkFile");
+
+    const output =
+        document.getElementById("bulkResults");
+
+    const file =
+        fileInput.files[0];
+
+    if (!file) {
+        alert("Please choose a TXT or CSV file.");
+        return;
+    }
+
+    const allowedExtensions = [
+        ".txt",
+        ".csv"
+    ];
+
+    const fileName =
+        file.name.toLowerCase();
+
+    if (
+        !allowedExtensions.some(
+            ext => fileName.endsWith(ext)
+        )
+    ) {
+        alert("Only TXT and CSV files are supported.");
+        return;
+    }
+
+
+    const content =
+        await file.text();
+
+
+    let urls = [];
+
+
+    content
+        .split(/
+?
+/)
+        .forEach(line => {
+
+            line
+                .split(",")
+                .forEach(value => {
+
+                    const item =
+                        value
+                            .trim()
+                            .replace(/^["']|["']$/g, "");
+
+                    if (
+                        item &&
+                        (
+                            item.includes(".") ||
+                            item.startsWith("http")
+                        )
+                    ) {
+                        urls.push(item);
+                    }
+
+                });
+
+        });
+
+
+    urls = [
+        ...new Set(urls)
+    ];
+
+
+    if (urls.length === 0) {
+
+        alert(
+            "No URLs found in the selected file."
+        );
+
+        return;
+    }
+
+
+    if (urls.length > 100) {
+
+        alert(
+            "Maximum 100 URLs can be scanned at once."
+        );
+
+        urls = urls.slice(0, 100);
+    }
+
+
+    output.innerHTML = `
+        <div class="bulk-progress">
+            Preparing to scan
+            <strong>${urls.length}</strong>
+            URLs...
+        </div>
+
+        <div class="table-wrapper">
+            <table class="bulk-result-table">
+
+                <thead>
+                    <tr>
+                        <th>URL</th>
+                        <th>FINAL</th>
+                        <th>RISK</th>
+                        <th>RULE</th>
+                        <th>ML</th>
+                        <th>ML %</th>
+                    </tr>
+                </thead>
+
+                <tbody id="bulkResultBody">
+                </tbody>
+
+            </table>
+        </div>
+    `;
+
+
+    const body =
+        document.getElementById(
+            "bulkResultBody"
+        );
+
+
+    let completed = 0;
+
+
+    for (const url of urls) {
+
+        const row =
+            document.createElement("tr");
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/scan",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                url: url
+                            })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            const values =
+                response.ok
+                ? [
+                    data.url || url,
+                    data.status || "-",
+                    (data.risk_score ?? "-") + "/100",
+                    data.rule_status || "-",
+                    data.ml_prediction || "-",
+                    (data.ml_probability ?? "-") + "%"
+                ]
+                : [
+                    url,
+                    "ERROR",
+                    "-",
+                    "-",
+                    "-",
+                    "-"
+                ];
+
+
+            values.forEach(value => {
+
+                const cell =
+                    document.createElement("td");
+
+                cell.textContent = value;
+
+                row.appendChild(cell);
+
+            });
+
+
+        }
+
+        catch (error) {
+
+            [
+                url,
+                "ERROR",
+                "-",
+                "-",
+                "-",
+                "-"
+            ].forEach(value => {
+
+                const cell =
+                    document.createElement("td");
+
+                cell.textContent = value;
+
+                row.appendChild(cell);
+
+            });
+
+        }
+
+
+        body.appendChild(row);
+
+        completed++;
+
+
+        const progress =
+            output.querySelector(
+                ".bulk-progress"
+            );
+
+
+        if (progress) {
+
+            progress.textContent =
+                `Scanned ${completed} of ${urls.length} URLs`;
+
+        }
+
+    }
+
+
+    const progress =
+        output.querySelector(
+            ".bulk-progress"
+        );
+
+
+    if (progress) {
+
+        progress.innerHTML =
+            `✅ Bulk scan completed:
+             <strong>${completed}</strong>
+             URLs processed.`;
+
+    }
+
+}
+
+
+
+async function downloadReport() {
+
+    try {
+
+        const response =
+            await fetch("/api/history");
+
+
+        if (!response.ok) {
+
+            alert(
+                "Unable to load scan history."
+            );
+
+            return;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const scans =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.history ||
+                    data.scans ||
+                    []
+                );
+
+
+        if (scans.length === 0) {
+
+            alert(
+                "No scan data available for report."
+            );
+
+            return;
+        }
+
+
+        const rows = [
+
+            [
+                "URL",
+                "Final Verdict",
+                "Risk Score",
+                "Rule Engine",
+                "ML Prediction",
+                "ML Probability",
+                "Scanned At"
+            ]
+
+        ];
+
+
+        scans.forEach(scan => {
+
+            rows.push([
+                scan.url || "",
+                scan.status || "",
+                scan.risk_score ?? "",
+                scan.rule_status || "",
+                scan.ml_prediction || "",
+                scan.ml_probability ?? "",
+                scan.scanned_at || ""
+            ]);
+
+        });
+
+
+        const csv =
+            rows
+                .map(row =>
+                    row.map(value => {
+
+                        const safe =
+                            String(value)
+                                .replace(
+                                    /"/g,
+                                    '""'
+                                );
+
+                        return `"${safe}"`;
+
+                    }).join(",")
+                )
+                .join("
+");
+
+
+        const blob =
+            new Blob(
+                [csv],
+                {
+                    type:
+                        "text/csv;charset=utf-8;"
+                }
+            );
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href =
+            URL.createObjectURL(blob);
+
+
+        link.download =
+            "phishguard_scan_report.csv";
+
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+        URL.revokeObjectURL(
+            link.href
+        );
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Could not generate report."
+        );
+
+    }
+
+}
+
+</script>
+
+
+<script src="/static/admin_motion.js"></script>
+
+<script src="/static/admin_user_control.js"></script>
+<script src="/static/admin_scanner_fix.js?v=3"></script>
+<script src="/static/admin_bulk_scan_fix.js?v=3"></script>
+</body>
+</html>

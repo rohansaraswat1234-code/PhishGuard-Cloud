@@ -1,0 +1,411 @@
+:root {
+    --admin-green: #35e6aa;
+    --admin-ease: cubic-bezier(.22,1,.36,1);
+}
+
+/* Admin shell stays visually stable.
+   Only the right-side content animates. */
+
+body {
+    animation: none !important;
+}
+
+.admin-main,
+.main-content,
+main {
+    animation: adminContentIn .32s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes adminContentIn {
+    from {
+        opacity: .55;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* reveal */
+.admin-reveal {
+    opacity: 0;
+    transform: translateY(22px) scale(.985);
+    filter: blur(3px);
+
+    transition:
+        opacity .65s var(--admin-ease),
+        transform .65s var(--admin-ease),
+        filter .65s var(--admin-ease);
+
+    transition-delay: var(--admin-delay, 0ms);
+}
+
+.admin-reveal.admin-visible {
+    opacity: 1;
+    transform: none;
+    filter: none;
+}
+
+/* cards */
+.stat-card,
+.admin-card,
+.dashboard-card,
+.panel,
+.security-card,
+.user-card,
+.activity-card,
+.alert-card {
+    transition:
+        transform .28s var(--admin-ease),
+        box-shadow .28s ease,
+        border-color .28s ease;
+}
+
+.stat-card:hover,
+.admin-card:hover,
+.dashboard-card:hover,
+.panel:hover,
+.security-card:hover {
+    transform: translateY(-4px);
+
+    border-color:
+        rgba(53,230,170,.38) !important;
+
+    box-shadow:
+        0 22px 48px rgba(0,0,0,.22);
+}
+
+/* sidebar */
+.sidebar a,
+.admin-sidebar a,
+nav a {
+    transition:
+        transform .22s var(--admin-ease),
+        background .22s ease,
+        color .22s ease;
+}
+
+.sidebar a:hover,
+.admin-sidebar a:hover {
+    transform: translateX(5px);
+}
+
+/* buttons */
+button,
+.btn,
+.action-btn,
+.primary-btn,
+.secondary-btn {
+    position: relative;
+    overflow: hidden;
+
+    transition:
+        transform .2s var(--admin-ease),
+        filter .2s ease,
+        box-shadow .2s ease;
+}
+
+button:hover,
+.btn:hover,
+.action-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+}
+
+button:active,
+.btn:active,
+.action-btn:active {
+    transform: scale(.97);
+}
+
+/* button shine */
+button::after,
+.btn::after {
+    content: "";
+    position: absolute;
+
+    top: -30%;
+    bottom: -30%;
+
+    width: 35px;
+    left: -60px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.20),
+            transparent
+        );
+
+    transform: rotate(20deg);
+    transition: left .65s var(--admin-ease);
+}
+
+button:hover::after,
+.btn:hover::after {
+    left: calc(100% + 40px);
+}
+
+/* tables */
+tbody tr {
+    transition:
+        background .2s ease,
+        transform .2s var(--admin-ease);
+}
+
+tbody tr:hover {
+    transform: translateX(3px);
+    background: rgba(53,230,170,.045);
+}
+
+/* status */
+.online-dot,
+.status-dot,
+.live-dot {
+    animation: adminPulse 2s ease-in-out infinite;
+}
+
+@keyframes adminPulse {
+    0%,100% {
+        opacity: 1;
+        box-shadow: 0 0 7px rgba(53,230,170,.8);
+    }
+
+    50% {
+        opacity: .5;
+        box-shadow: 0 0 18px rgba(53,230,170,1);
+    }
+}
+
+/* modal */
+.modal:not(.hidden),
+.dialog:not(.hidden) {
+    animation: modalIn .3s var(--admin-ease) both;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* progress */
+.progress-bar,
+.risk-bar {
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after,
+.risk-bar::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    width: 35%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.32),
+            transparent
+        );
+
+    animation: adminShimmer 1.7s linear infinite;
+}
+
+@keyframes adminShimmer {
+    from {
+        transform: translateX(-150%);
+    }
+
+    to {
+        transform: translateX(430%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ==============================
+   ADMIN SINGLE-PANEL FEEL
+   ============================== */
+
+.sidebar,
+.admin-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    flex-shrink: 0;
+    animation: none !important;
+}
+
+.sidebar *,
+.admin-sidebar * {
+    animation-delay: 0s;
+}
+
+.admin-main,
+.main-content,
+.dashboard-main,
+main {
+    min-height: 100vh;
+}
+
+/* selected sidebar item */
+.sidebar a.active,
+.admin-sidebar a.active,
+.sidebar a[aria-current="page"],
+.admin-sidebar a[aria-current="page"] {
+    background: rgba(53,230,170,.12);
+    border: 1px solid rgba(53,230,170,.18);
+    color: #ffffff;
+    box-shadow: inset 3px 0 0 #35e6aa;
+}
+
+/* do not make every page feel newly loaded */
+header,
+.admin-header,
+.sidebar,
+.admin-sidebar {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+/* content loading indicator */
+.admin-nav-loader {
+    position: fixed;
+    z-index: 99999;
+    top: 0;
+    left: 0;
+
+    height: 2px;
+    width: 0;
+
+    background: #35e6aa;
+
+    box-shadow:
+        0 0 12px rgba(53,230,170,.75);
+
+    transition: width .2s ease,
+                opacity .2s ease;
+}
+
+.admin-nav-loader.loading {
+    width: 75%;
+}
+
+.admin-nav-loader.complete {
+    width: 100%;
+    opacity: 0;
+}
+
+
+/* =====================================
+   ADMIN PORTAL - SINGLE PAGE EXPERIENCE
+   ===================================== */
+
+.admin-content-enter {
+    animation:
+        adminPanelEnter
+        .35s
+        cubic-bezier(.22,1,.36,1)
+        both;
+}
+
+@keyframes adminPanelEnter {
+
+    from {
+        opacity: 0;
+        transform:
+            translateY(8px)
+            scale(.995);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+
+/* Sidebar remains stable */
+
+.sidebar,
+.admin-sidebar {
+    animation: none !important;
+}
+
+
+/* Active item */
+
+.sidebar a.active,
+.admin-sidebar a.active {
+
+    background:
+        rgba(53,230,170,.12);
+
+    color: #fff;
+
+    border-color:
+        rgba(53,230,170,.22);
+
+    box-shadow:
+        inset 3px 0 0 #35e6aa;
+}
+
+
+/* top loading line */
+
+.admin-nav-loader {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 0;
+    height: 3px;
+
+    z-index: 999999;
+
+    background: #35e6aa;
+
+    box-shadow:
+        0 0 14px
+        rgba(53,230,170,.8);
+
+    opacity: 1;
+
+    transition:
+        width .25s ease,
+        opacity .25s ease;
+}
+
+.admin-nav-loader.loading {
+    width: 75%;
+}
+
+.admin-nav-loader.complete {
+
+    width: 100%;
+    opacity: 0;
+}

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Blocked Domains | PhishGuard
+</title>
+
+<link
+    rel="stylesheet"
+    href="/static/admin.css"
+>
+
+<link rel="stylesheet" href="/static/admin_motion.css">
+</head>
+
+
+<body>
+
+<div class="app-layout">
+
+
+<aside class="sidebar">
+
+<div>
+
+<div class="brand">
+
+<div class="brand-icon">
+🛡
+</div>
+
+<div>
+<h2>PhishGuard</h2>
+<span>Cloud Security</span>
+</div>
+
+</div>
+
+
+<nav class="sidebar-menu">
+
+<a href="/admin">
+<span>▦</span>
+Overview
+</a>
+
+<a href="/admin/scanner">
+<span>⌗</span>
+URL Scanner
+</a>
+
+<a href="/admin/history">
+<span>◷</span>
+Scan History
+</a>
+
+<a href="/admin/activity">
+<span>♙</span>
+Admin Panel
+</a>
+
+<a
+    href="/admin/blocked-domains"
+    class="active"
+>
+<span>⛔</span>
+Blocked Domains
+</a>
+
+<a href="/admin/cloud-status">
+<span>☁</span>
+Cloud Status
+</a>
+
+</nav>
+
+</div>
+
+
+<div class="engine-card">
+
+<div class="engine-line">
+
+<span class="online-dot"></span>
+
+<strong>
+Blocklist Active
+</strong>
+
+</div>
+
+<p>
+Admin threat protection enabled
+</p>
+
+</div>
+
+</aside>
+
+
+
+<main class="main-content">
+
+
+<header class="top-header">
+
+<div>
+
+<p class="section-label">
+THREAT CONTROL
+</p>
+
+<h1>
+Blocked Domains
+</h1>
+
+<p class="subtitle">
+Block dangerous domains across
+the PhishGuard platform.
+</p>
+
+</div>
+
+</header>
+
+
+
+{% if success %}
+
+<div class="system-message success-box">
+{{ success }}
+</div>
+
+{% endif %}
+
+
+{% if error %}
+
+<div class="system-message error-box">
+{{ error }}
+</div>
+
+{% endif %}
+
+
+
+<section class="panel block-domain-form">
+
+<h2>
+Add Domain to Blocklist
+</h2>
+
+<p>
+Any blocked domain will automatically
+receive a 100/100 phishing risk score.
+</p>
+
+
+<form
+    method="POST"
+    action="/admin/blocked-domains/add"
+>
+
+<input
+    type="hidden"
+    name="csrf_token"
+    value="{{ csrf_token() }}"
+>
+
+
+<div class="block-form-grid">
+
+<input
+    type="text"
+    name="domain"
+    placeholder="example-phishing.com"
+    required
+>
+
+
+<input
+    type="text"
+    name="reason"
+    placeholder="Reason e.g. Known phishing website"
+>
+
+
+<button type="submit">
+    Block Domain
+</button>
+
+</div>
+
+</form>
+
+</section>
+
+
+
+<section class="panel blocked-table-panel">
+
+<div class="panel-heading">
+
+<div>
+
+<h2>
+Threat Blocklist
+</h2>
+
+<p>
+{{ domains|length }}
+blocked domain(s)
+</p>
+
+</div>
+
+
+<input
+    id="domainSearch"
+    type="text"
+    placeholder="Search blocked domains..."
+>
+
+</div>
+
+
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+<th>DOMAIN</th>
+<th>REASON</th>
+<th>ADDED</th>
+<th>ACTION</th>
+</tr>
+
+</thead>
+
+
+<tbody id="domainTable">
+
+{% for item in domains %}
+
+<tr>
+
+<td class="domain-cell">
+⛔ {{ item.domain }}
+</td>
+
+<td>
+{{ item.reason or "Known unsafe domain" }}
+</td>
+
+<td>
+{{ item.created_at }}
+</td>
+
+<td>
+
+<form
+    method="POST"
+    action="/admin/blocked-domains/{{ item.id }}/delete"
+    onsubmit="
+        return confirm(
+            'Remove this domain from blocklist?'
+        )
+    "
+>
+
+<input
+    type="hidden"
+    name="csrf_token"
+    value="{{ csrf_token() }}"
+>
+
+<button
+    class="unblock-button"
+    type="submit"
+>
+Unblock
+</button>
+
+</form>
+
+</td>
+
+</tr>
+
+
+{% else %}
+
+<tr>
+
+<td colspan="4">
+No blocked domains yet.
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<footer>
+
+<span>
+PhishGuard Cloud Security Platform
+</span>
+
+<a href="/logout">
+Logout
+</a>
+
+</footer>
+
+
+</main>
+
+</div>
+
+
+
+<script>
+
+document
+    .getElementById("domainSearch")
+    .addEventListener(
+        "input",
+        function () {
+
+            const search =
+                this.value.toLowerCase();
+
+            document
+                .querySelectorAll(
+                    "#domainTable tr"
+                )
+                .forEach(row => {
+
+                    row.style.display =
+                        row.textContent
+                            .toLowerCase()
+                            .includes(search)
+                        ? ""
+                        : "none";
+
+                });
+
+        }
+    );
+
+</script>
+
+<script src="/static/admin_motion.js"></script>
+</body>
+</html>

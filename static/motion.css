@@ -1,0 +1,1143 @@
+/* =========================================================
+   PHISHGUARD PREMIUM MOTION SYSTEM V2
+========================================================= */
+
+:root {
+    --pg-green: #35e6aa;
+    --pg-red: #ff6278;
+    --pg-ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+
+/* =========================================================
+   PAGE ENTRY
+========================================================= */
+
+body {
+    animation: pgPageEnter .6s var(--pg-ease) both;
+}
+
+@keyframes pgPageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
+   SECTION REVEAL
+========================================================= */
+
+.pg-reveal {
+    opacity: 0;
+
+    transform:
+        translateY(24px)
+        scale(.985);
+
+    filter: blur(4px);
+
+    transition:
+        opacity .7s var(--pg-ease),
+        transform .7s var(--pg-ease),
+        filter .7s var(--pg-ease);
+
+    transition-delay:
+        var(--pg-delay, 0ms);
+}
+
+
+.pg-reveal.pg-visible {
+    opacity: 1;
+
+    transform:
+        translateY(0)
+        scale(1);
+
+    filter: blur(0);
+}
+
+
+/* =========================================================
+   PREMIUM CARD MOTION
+========================================================= */
+
+.pg-tilt {
+    transform-style: preserve-3d;
+
+    will-change: transform;
+
+    transition:
+        transform .35s var(--pg-ease),
+        border-color .3s ease,
+        box-shadow .3s ease;
+}
+
+
+.pg-tilt:hover {
+    border-color:
+        rgba(53, 230, 170, .38);
+
+    box-shadow:
+        0 24px 55px
+        rgba(0, 0, 0, .22),
+        0 0 30px
+        rgba(53, 230, 170, .035);
+}
+
+
+/* subtle light sweep */
+
+.pg-tilt {
+    position: relative;
+    overflow: hidden;
+}
+
+
+.pg-tilt::after {
+    content: "";
+
+    position: absolute;
+
+    inset: -100%;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            120deg,
+            transparent 40%,
+            rgba(255,255,255,.035) 50%,
+            transparent 60%
+        );
+
+    transform:
+        translateX(-55%)
+        rotate(12deg);
+
+    transition:
+        transform .8s var(--pg-ease);
+}
+
+
+.pg-tilt:hover::after {
+    transform:
+        translateX(55%)
+        rotate(12deg);
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.user-menu a,
+.scanner-menu a,
+.side-menu a {
+    position: relative;
+
+    transition:
+        transform .25s var(--pg-ease),
+        color .25s ease,
+        background .25s ease;
+}
+
+
+.user-menu a:hover,
+.scanner-menu a:hover,
+.side-menu a:hover {
+    transform:
+        translateX(6px);
+}
+
+
+.user-menu a.active::after,
+.scanner-menu a.active::after,
+.side-menu a.active::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 18%;
+
+    width: 3px;
+    height: 64%;
+
+    border-radius: 8px;
+
+    background:
+        var(--pg-green);
+
+    box-shadow:
+        0 0 16px
+        rgba(53,230,170,.65);
+
+    animation:
+        pgNavIndicator .45s
+        var(--pg-ease) both;
+}
+
+
+@keyframes pgNavIndicator {
+    from {
+        transform: scaleY(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   BRAND / ICONS
+========================================================= */
+
+.brand-shield,
+.brand-logo,
+.brand-icon,
+.panel-icon,
+.scanner-heading-icon,
+.insight-icon,
+.quick-action-icon {
+
+    transition:
+        transform .35s var(--pg-ease),
+        box-shadow .35s ease;
+}
+
+
+.brand-shield:hover,
+.brand-logo:hover,
+.brand-icon:hover {
+
+    transform:
+        rotate(-6deg)
+        scale(1.06);
+
+    box-shadow:
+        0 0 28px
+        rgba(53,230,170,.13);
+}
+
+
+.panel-icon:hover,
+.scanner-heading-icon:hover,
+.insight-icon:hover,
+.quick-action-icon:hover {
+
+    transform:
+        translateY(-3px)
+        scale(1.05);
+}
+
+
+/* =========================================================
+   STATUS DOT
+========================================================= */
+
+.online-dot,
+.live-dot,
+.system-dot,
+.live-status-dot {
+
+    animation:
+        pgStatusPulse
+        2.2s ease-in-out
+        infinite;
+}
+
+
+@keyframes pgStatusPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+
+        box-shadow:
+            0 0 7px
+            rgba(53,230,170,.75);
+    }
+
+    50% {
+        opacity: .55;
+
+        box-shadow:
+            0 0 18px
+            rgba(53,230,170,1);
+    }
+
+}
+
+
+/* =========================================================
+   STAT NUMBER
+========================================================= */
+
+.user-stat-card strong,
+.scanner-stat strong,
+.stat-card > strong {
+
+    animation:
+        pgNumberPop
+        .55s var(--pg-ease)
+        both;
+}
+
+
+@keyframes pgNumberPop {
+
+    from {
+        opacity: 0;
+        transform:
+            translateY(8px)
+            scale(.86);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+button,
+.dashboard-button,
+.scan-new-button,
+.dashboard-action,
+.primary-button,
+.secondary-button,
+.choose-file,
+.insight-actions a,
+.insight-banner a {
+
+    position: relative;
+
+    overflow: hidden;
+
+    transition:
+        transform .22s var(--pg-ease),
+        box-shadow .22s ease,
+        filter .22s ease;
+}
+
+
+button:hover,
+.dashboard-button:hover,
+.scan-new-button:hover,
+.dashboard-action:hover,
+.primary-button:hover,
+.secondary-button:hover,
+.choose-file:hover,
+.insight-actions a:hover,
+.insight-banner a:hover {
+
+    transform:
+        translateY(-2px);
+
+    filter:
+        brightness(1.07);
+}
+
+
+button:active,
+.dashboard-button:active,
+.scan-new-button:active,
+.dashboard-action:active,
+.primary-button:active,
+.secondary-button:active {
+
+    transform:
+        translateY(0)
+        scale(.97);
+}
+
+
+/* button light sweep */
+
+button::after,
+.primary-button::after,
+.scan-new-button::after {
+
+    content: "";
+
+    position: absolute;
+
+    top: -30%;
+    bottom: -30%;
+
+    width: 38px;
+
+    left: -70px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.20),
+            transparent
+        );
+
+    transform:
+        rotate(18deg);
+
+    transition:
+        left .65s var(--pg-ease);
+
+    pointer-events: none;
+}
+
+
+button:hover::after,
+.primary-button:hover::after,
+.scan-new-button:hover::after {
+
+    left:
+        calc(100% + 40px);
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.pg-logout-button {
+
+    display:
+        inline-flex !important;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 135px;
+    min-height: 47px;
+
+    padding:
+        12px 23px !important;
+
+    border-radius:
+        12px !important;
+
+    border:
+        1px solid
+        rgba(255,98,120,.44) !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,98,120,.12),
+            rgba(135,25,45,.20)
+        ) !important;
+
+    color:
+        #ff8293 !important;
+
+    text-decoration:
+        none !important;
+
+    font-size:
+        12px !important;
+
+    font-weight:
+        700 !important;
+
+    transition:
+        transform .3s var(--pg-ease),
+        background .3s ease,
+        box-shadow .3s ease,
+        color .3s ease;
+}
+
+
+.pg-logout-button::before {
+
+    content: "↪";
+
+    margin-right: 8px;
+
+    font-size: 17px;
+
+    transition:
+        transform .3s var(--pg-ease);
+}
+
+
+.pg-logout-button:hover {
+
+    transform:
+        translateY(-4px);
+
+    color:
+        white !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff6278,
+            #b8324b
+        ) !important;
+
+    box-shadow:
+        0 13px 32px
+        rgba(255,98,120,.23);
+}
+
+
+.pg-logout-button:hover::before {
+
+    transform:
+        translateX(4px);
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+input,
+select {
+
+    transition:
+        border-color .25s ease,
+        box-shadow .25s ease,
+        background .25s ease;
+}
+
+
+input:focus,
+select:focus {
+
+    border-color:
+        var(--pg-green) !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(53,230,170,.07),
+        0 0 20px
+        rgba(53,230,170,.035);
+
+}
+
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.scanner-tab,
+.scan-tab {
+
+    transition:
+        transform .3s var(--pg-ease),
+        background .3s ease,
+        color .3s ease,
+        box-shadow .3s ease;
+}
+
+
+.scanner-tab.active,
+.scan-tab.active {
+
+    animation:
+        pgTabEnter
+        .35s var(--pg-ease)
+        both;
+
+    box-shadow:
+        0 7px 20px
+        rgba(53,230,170,.14);
+}
+
+
+@keyframes pgTabEnter {
+
+    from {
+        transform:
+            scale(.9);
+    }
+
+    to {
+        transform:
+            scale(1);
+    }
+
+}
+
+
+/* =========================================================
+   SCANNER LOADER
+========================================================= */
+
+.analysis-loader:not(.hidden),
+.scan-loading:not(.hidden) {
+
+    animation:
+        pgLoaderEnter
+        .35s var(--pg-ease)
+        both;
+}
+
+
+@keyframes pgLoaderEnter {
+
+    from {
+        opacity: 0;
+        transform:
+            translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0);
+    }
+
+}
+
+
+.loader-bar,
+.bulk-progress-bar,
+.progress-bar {
+
+    position: relative;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 0 15px
+        rgba(53,230,170,.16);
+}
+
+
+.loader-bar::after,
+.bulk-progress-bar::after,
+.progress-bar::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 35%;
+
+    transform:
+        translateX(-150%);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.42),
+            transparent
+        );
+
+    animation:
+        pgProgressShimmer
+        1.7s linear
+        infinite;
+}
+
+
+@keyframes pgProgressShimmer {
+
+    to {
+        transform:
+            translateX(430%);
+    }
+
+}
+
+
+/* =========================================================
+   SCAN RESULT
+========================================================= */
+
+.single-result:not(.hidden),
+.dashboard-result:not(.hidden) {
+
+    animation:
+        pgResultReveal
+        .55s var(--pg-ease)
+        both;
+}
+
+
+@keyframes pgResultReveal {
+
+    0% {
+        opacity: 0;
+
+        transform:
+            translateY(16px)
+            scale(.96);
+
+        filter:
+            blur(4px);
+    }
+
+    100% {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+        filter:
+            blur(0);
+    }
+
+}
+
+
+.verdict-icon {
+
+    animation:
+        pgVerdictIcon
+        .55s var(--pg-ease)
+        both;
+}
+
+
+@keyframes pgVerdictIcon {
+
+    from {
+        transform:
+            scale(.55)
+            rotate(-10deg);
+
+        opacity: 0;
+    }
+
+    to {
+        transform:
+            scale(1)
+            rotate(0);
+
+        opacity: 1;
+    }
+
+}
+
+
+/* =========================================================
+   REASONS
+========================================================= */
+
+.reason-box:not(.hidden),
+.analysis-reasons {
+
+    animation:
+        pgReasonEnter
+        .5s var(--pg-ease)
+        .12s both;
+}
+
+
+@keyframes pgReasonEnter {
+
+    from {
+        opacity: 0;
+        transform:
+            translateY(9px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0);
+    }
+
+}
+
+
+/* =========================================================
+   SCORE RING
+========================================================= */
+
+.score-circle,
+.security-ring {
+
+    animation:
+        pgScoreRing
+        .85s var(--pg-ease)
+        both;
+
+    transition:
+        transform .35s var(--pg-ease),
+        box-shadow .35s ease;
+}
+
+
+.score-circle:hover,
+.security-ring:hover {
+
+    transform:
+        scale(1.055);
+
+    box-shadow:
+        0 0 42px
+        rgba(53,230,170,.15);
+}
+
+
+@keyframes pgScoreRing {
+
+    from {
+        opacity: 0;
+
+        transform:
+            scale(.72)
+            rotate(-16deg);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            scale(1)
+            rotate(0);
+    }
+
+}
+
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+.user-chart,
+.large-chart,
+.donut-container,
+.donut-chart-box,
+.large-chart-box {
+
+    animation:
+        pgChartReveal
+        .75s var(--pg-ease)
+        both;
+}
+
+
+@keyframes pgChartReveal {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(12px)
+            scale(.96);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+tbody tr {
+
+    transition:
+        background .22s ease,
+        transform .22s var(--pg-ease);
+}
+
+
+tbody tr:hover {
+
+    transform:
+        translateX(4px);
+
+    background:
+        rgba(53,230,170,.045);
+}
+
+
+/* =========================================================
+   BULK DRAG
+========================================================= */
+
+.bulk-drop-zone {
+
+    transition:
+        transform .35s var(--pg-ease),
+        border-color .35s ease,
+        box-shadow .35s ease,
+        background .35s ease;
+}
+
+
+.bulk-drop-zone:hover {
+
+    transform:
+        translateY(-3px);
+}
+
+
+.bulk-drop-zone.drag-active {
+
+    transform:
+        scale(1.015);
+
+    border-color:
+        var(--pg-green) !important;
+
+    box-shadow:
+        0 0 35px
+        rgba(53,230,170,.16);
+
+    animation:
+        pgDropZone
+        1s ease-in-out
+        infinite alternate;
+}
+
+
+@keyframes pgDropZone {
+
+    from {
+        box-shadow:
+            0 0 15px
+            rgba(53,230,170,.08);
+    }
+
+    to {
+        box-shadow:
+            0 0 38px
+            rgba(53,230,170,.19);
+    }
+
+}
+
+
+/* =========================================================
+   BULK RESULTS
+========================================================= */
+
+.bulk-preview:not(.hidden),
+.bulk-file-preview:not(.hidden),
+.bulk-summary:not(.hidden),
+.bulk-results:not(.hidden),
+.bulk-results-section:not(.hidden) {
+
+    animation:
+        pgBulkReveal
+        .55s var(--pg-ease)
+        both;
+}
+
+
+@keyframes pgBulkReveal {
+
+    from {
+        opacity: 0;
+        transform:
+            translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0);
+    }
+
+}
+
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+.notification-panel:not(.hidden) {
+
+    transform-origin:
+        top right;
+
+    animation:
+        pgNotificationOpen
+        .32s var(--pg-ease)
+        both;
+}
+
+
+@keyframes pgNotificationOpen {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(-8px)
+            scale(.94);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+
+.notification-button:hover {
+
+    animation:
+        pgBell
+        .45s ease;
+}
+
+
+@keyframes pgBell {
+
+    0% {
+        transform:
+            rotate(0);
+    }
+
+    25% {
+        transform:
+            rotate(-9deg);
+    }
+
+    50% {
+        transform:
+            rotate(8deg);
+    }
+
+    75% {
+        transform:
+            rotate(-4deg);
+    }
+
+    100% {
+        transform:
+            rotate(0);
+    }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (
+    prefers-reduced-motion: reduce
+) {
+
+    *,
+    *::before,
+    *::after {
+
+        animation:
+            none !important;
+
+        transition:
+            none !important;
+
+        transform:
+            none !important;
+
+    }
+
+}
+
+
+/* ===== HEADER CINEMATIC ENTRY ===== */
+
+.user-header,
+.scanner-header,
+.analytics-header {
+
+    animation:
+        pgHeaderEnter
+        .7s
+        cubic-bezier(.22,1,.36,1)
+        both;
+}
+
+
+@keyframes pgHeaderEnter {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(-12px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+    }
+
+}
+
+
+/* ===== PROFILE ENTRY ===== */
+
+.user-profile-card,
+.profile-mini,
+.profile-card {
+
+    animation:
+        pgProfileEnter
+        .65s
+        cubic-bezier(.22,1,.36,1)
+        .12s both;
+}
+
+
+@keyframes pgProfileEnter {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateX(14px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateX(0);
+
+    }
+
+}

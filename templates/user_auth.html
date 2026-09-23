@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        User Portal | PhishGuard
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/static/auth.css"
+    >
+
+</head>
+
+<body>
+
+<div class="auth-page">
+
+    <div class="brand">
+
+        <div class="shield">
+            👤
+        </div>
+
+        <h1>
+            User Portal
+        </h1>
+
+        <p>
+            PhishGuard Cloud
+        </p>
+
+    </div>
+
+
+    <div class="auth-card">
+
+        <div class="tabs">
+
+            <button
+                id="loginTab"
+                onclick="showLogin()"
+            >
+                Login
+            </button>
+
+            <button
+                id="registerTab"
+                onclick="showRegister()"
+            >
+                Create Account
+            </button>
+
+        </div>
+
+
+        {% if request.args.get("registered") %}
+
+        <div class="success-message">
+            User account created successfully.
+            Please login.
+        </div>
+
+        {% endif %}
+
+
+        {% if error %}
+
+        <div class="error-message">
+            {{ error }}
+        </div>
+
+        {% endif %}
+
+
+        <form
+            id="loginForm"
+            method="POST"
+            action="/user/login"
+        >
+
+            <h2>
+                User Login
+            </h2>
+
+            <p class="subtitle">
+                Login to your phishing protection dashboard.
+            </p>
+
+
+            <label>
+                Email Address
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                required
+            >
+
+
+            <label>
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                required
+            >
+
+
+            <button
+                class="main-button"
+                type="submit"
+            >
+                Login as User
+            </button>
+
+        </form>
+
+
+        <form
+            id="registerForm"
+            method="POST"
+            action="/user/register"
+        >
+
+            <h2>
+                Create User Account
+            </h2>
+
+
+            <label>
+                Full Name
+            </label>
+
+            <input
+                type="text"
+                name="name"
+                required
+            >
+
+
+            <label>
+                Email
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                required
+            >
+
+
+            <label>
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                minlength="8"
+                required
+            >
+
+
+            <button
+                class="main-button"
+                type="submit"
+            >
+                Create User Account
+            </button>
+
+        </form>
+
+
+        <a
+            href="/"
+            class="back-button"
+        >
+            ← Back to Portal Selection
+        </a>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function showLogin() {
+
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
+
+    loginTab.classList.add("active");
+    registerTab.classList.remove("active");
+}
+
+
+function showRegister() {
+
+    loginForm.style.display = "none";
+    registerForm.style.display = "block";
+
+    registerTab.classList.add("active");
+    loginTab.classList.remove("active");
+}
+
+
+{% if mode == "register" %}
+showRegister();
+{% else %}
+showLogin();
+{% endif %}
+
+</script>
+
+</body>
+</html>

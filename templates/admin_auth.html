@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Admin Portal | PhishGuard
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/static/auth.css"
+    >
+
+<link rel="stylesheet" href="/static/admin_motion.css">
+</head>
+
+<body>
+
+<div class="auth-page">
+
+    <div class="brand">
+
+        <div class="shield">
+            ⚙️
+        </div>
+
+        <h1>
+            Admin Portal
+        </h1>
+
+        <p>
+            PhishGuard Administration
+        </p>
+
+    </div>
+
+
+    <div class="auth-card">
+
+        <div class="tabs">
+
+            <button
+                id="loginTab"
+                onclick="showLogin()"
+            >
+                Admin Login
+            </button>
+
+            <button
+                id="registerTab"
+                onclick="showRegister()"
+            >
+                Create Admin
+            </button>
+
+        </div>
+
+
+        {% if request.args.get("registered") %}
+
+        <div class="success-message">
+            Admin account created successfully.
+        </div>
+
+        {% endif %}
+
+
+        {% if error %}
+
+        <div class="error-message">
+            {{ error }}
+        </div>
+
+        {% endif %}
+
+
+        <form
+            id="loginForm"
+            method="POST"
+            action="/admin/login"
+        >
+
+            <h2>
+                Administrator Login
+            </h2>
+
+
+            <label>
+                Admin Email
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                required
+            >
+
+
+            <label>
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                required
+            >
+
+
+            <button
+                class="main-button"
+                type="submit"
+            >
+                Login as Admin
+            </button>
+
+        </form>
+
+
+        <form
+            id="registerForm"
+            method="POST"
+            action="/admin/register"
+        >
+
+            <h2>
+                Create Admin Account
+            </h2>
+
+
+            <label>
+                Admin Name
+            </label>
+
+            <input
+                type="text"
+                name="name"
+                required
+            >
+
+
+            <label>
+                Admin Email
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                required
+            >
+
+
+            <label>
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                minlength="8"
+                required
+            >
+
+
+            <label>
+                Admin Access Code
+            </label>
+
+            <input
+                type="password"
+                name="access_code"
+                placeholder="Enter admin authorization code"
+                required
+            >
+
+
+            <button
+                class="main-button"
+                type="submit"
+            >
+                Create Admin
+            </button>
+
+        </form>
+
+
+        <a
+            href="/"
+            class="back-button"
+        >
+            ← Back to Portal Selection
+        </a>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function showLogin() {
+
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
+
+    loginTab.classList.add("active");
+    registerTab.classList.remove("active");
+}
+
+
+function showRegister() {
+
+    loginForm.style.display = "none";
+    registerForm.style.display = "block";
+
+    registerTab.classList.add("active");
+    loginTab.classList.remove("active");
+}
+
+
+{% if mode == "register" %}
+showRegister();
+{% else %}
+showLogin();
+{% endif %}
+
+</script>
+
+<script src="/static/admin_motion.js"></script>
+</body>
+</html>

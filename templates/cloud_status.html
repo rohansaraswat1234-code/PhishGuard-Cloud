@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Cloud Status | PhishGuard
+</title>
+
+<link
+    rel="stylesheet"
+    href="/static/admin.css"
+>
+
+</head>
+
+
+<body>
+
+<div class="app-layout">
+
+
+<aside class="sidebar">
+
+<div>
+
+<div class="brand">
+
+<div class="brand-icon">
+🛡
+</div>
+
+<div>
+<h2>PhishGuard</h2>
+<span>Cloud Security</span>
+</div>
+
+</div>
+
+
+<nav class="sidebar-menu">
+
+<a href="/admin">
+<span>▦</span>
+Overview
+</a>
+
+<a href="/admin/scanner">
+<span>⌗</span>
+URL Scanner
+</a>
+
+<a href="/admin/history">
+<span>◷</span>
+Scan History
+</a>
+
+<a href="/admin/activity">
+<span>♙</span>
+Admin Panel
+</a>
+
+<a
+    href="/admin/cloud-status"
+    class="active"
+>
+<span>☁</span>
+Cloud Status
+</a>
+
+</nav>
+
+</div>
+
+
+<div class="engine-card">
+
+<div class="engine-line">
+
+<span class="online-dot"></span>
+
+<strong>
+System Monitor
+</strong>
+
+</div>
+
+<p>
+Live component status
+</p>
+
+</div>
+
+</aside>
+
+
+
+<main class="main-content">
+
+
+<header class="top-header">
+
+<div>
+
+<p class="section-label">
+SYSTEM HEALTH
+</p>
+
+<h1>
+Cloud Status
+</h1>
+
+<p class="subtitle">
+Monitor PhishGuard backend,
+database and detection engines.
+</p>
+
+</div>
+
+</header>
+
+
+
+<section
+    class="cloud-grid"
+    id="statusGrid"
+>
+
+<div class="cloud-card">
+Loading system status...
+</div>
+
+</section>
+
+
+<section class="panel status-information">
+
+<h2>
+System Information
+</h2>
+
+<p>
+PhishGuard combines a Python Flask backend,
+SQLite scan storage, rule-based phishing
+analysis and a trained machine-learning model.
+</p>
+
+<button
+    class="report-button"
+    onclick="loadStatus()"
+>
+↻ Refresh Status
+</button>
+
+</section>
+
+
+<footer>
+
+<span>
+PhishGuard Cloud Security Platform
+</span>
+
+<a href="/logout">
+Logout
+</a>
+
+</footer>
+
+
+</main>
+
+</div>
+
+
+
+<script>
+
+function createStatusCard(
+    title,
+    status,
+    description
+) {
+
+    const card =
+        document.createElement("div");
+
+    card.className =
+        "cloud-card";
+
+
+    const statusClass =
+        status === "ONLINE"
+            ? "status-online"
+            : "status-offline";
+
+
+    const heading =
+        document.createElement("div");
+
+
+    heading.className =
+        "cloud-card-heading";
+
+
+    const name =
+        document.createElement("h2");
+
+    name.textContent =
+        title;
+
+
+    const badge =
+        document.createElement("span");
+
+    badge.className =
+        statusClass;
+
+    badge.textContent =
+        status;
+
+
+    heading.appendChild(name);
+    heading.appendChild(badge);
+
+
+    const paragraph =
+        document.createElement("p");
+
+    paragraph.textContent =
+        description;
+
+
+    card.appendChild(heading);
+    card.appendChild(paragraph);
+
+
+    return card;
+
+}
+
+
+
+async function loadStatus() {
+
+    const grid =
+        document.getElementById(
+            "statusGrid"
+        );
+
+
+    grid.innerHTML =
+        '<div class="cloud-card">Checking system...</div>';
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/cloud-status"
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Status request failed"
+            );
+
+        }
+
+
+        grid.textContent = "";
+
+
+        grid.appendChild(
+            createStatusCard(
+                "Web Application",
+                data.application.status,
+                `${data.application.service} • ${data.application.framework}`
+            )
+        );
+
+
+        grid.appendChild(
+            createStatusCard(
+                "Database",
+                data.database.status,
+                `${data.database.message} • ${data.database.total_scans} stored scans`
+            )
+        );
+
+
+        grid.appendChild(
+            createStatusCard(
+                "ML Detection Engine",
+                data.ml_engine.status,
+                data.ml_engine.model
+            )
+        );
+
+
+        grid.appendChild(
+            createStatusCard(
+                "Rule Engine",
+                data.rule_engine.status,
+                "Lexical URL phishing analysis active"
+            )
+        );
+
+
+    }
+
+    catch (error) {
+
+        grid.innerHTML =
+            '<div class="cloud-card status-offline">Unable to retrieve system status.</div>';
+
+    }
+
+}
+
+
+loadStatus();
+
+</script>
+
+
+</body>
+</html>

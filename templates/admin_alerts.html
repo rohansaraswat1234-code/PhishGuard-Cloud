@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Threat Alerts | PhishGuard
+</title>
+
+<link
+    rel="stylesheet"
+    href="/static/admin.css"
+>
+
+<link rel="stylesheet" href="/static/admin_motion.css">
+</head>
+
+
+<body>
+
+<div class="app-layout">
+
+
+<aside class="sidebar">
+
+<div>
+
+<div class="brand">
+
+<div class="brand-icon">
+🛡
+</div>
+
+<div>
+<h2>PhishGuard</h2>
+<span>Cloud Security</span>
+</div>
+
+</div>
+
+
+<nav class="sidebar-menu">
+
+<a href="/admin">
+<span>▦</span>
+Overview
+</a>
+
+<a href="/admin/scanner">
+<span>⌗</span>
+URL Scanner
+</a>
+
+<a href="/admin/history">
+<span>◷</span>
+Scan History
+</a>
+
+<a href="/admin/activity">
+<span>♙</span>
+Admin Panel
+</a>
+
+<a
+    href="/admin/alerts"
+    class="active"
+>
+<span>⚠</span>
+Threat Alerts
+</a>
+
+<a href="/admin/blocked-domains">
+<span>⛔</span>
+Blocked Domains
+</a>
+
+<a href="/admin/audit-logs">
+<span>≡</span>
+Audit Logs
+</a>
+
+<a href="/admin/cloud-status">
+<span>☁</span>
+Cloud Status
+</a>
+
+</nav>
+
+</div>
+
+
+<div class="engine-card">
+
+<div class="engine-line">
+
+<span class="online-dot"></span>
+
+<strong>
+Threat Monitor Active
+</strong>
+
+</div>
+
+<p>
+{{ open_alerts }} unresolved alert(s)
+</p>
+
+</div>
+
+</aside>
+
+
+
+<main class="main-content">
+
+
+<header class="top-header">
+
+<div>
+
+<p class="section-label">
+SECURITY INCIDENTS
+</p>
+
+<h1>
+Threat Alerts
+</h1>
+
+<p class="subtitle">
+Review dangerous URLs detected
+by PhishGuard.
+</p>
+
+</div>
+
+</header>
+
+
+
+<section class="stats-grid alert-stat-grid">
+
+<div class="stat-card">
+
+<div class="stat-icon danger-icon">
+!
+</div>
+
+<p>
+Open Alerts
+</p>
+
+<strong class="danger-text">
+{{ open_alerts }}
+</strong>
+
+</div>
+
+</section>
+
+
+
+<section class="panel">
+
+<div class="panel-heading">
+
+<div>
+
+<h2>
+Dangerous Scan Activity
+</h2>
+
+<p>
+Automatically generated for
+PHISHING detections.
+</p>
+
+</div>
+
+
+<input
+    id="alertSearch"
+    class="admin-search-field"
+    type="text"
+    placeholder="Search URL or user..."
+>
+
+</div>
+
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+<th>USER</th>
+<th>URL</th>
+<th>RISK</th>
+<th>SOURCE</th>
+<th>STATUS</th>
+<th>TIME</th>
+<th>ACTION</th>
+</tr>
+
+</thead>
+
+
+<tbody id="alertTable">
+
+{% for alert in alerts %}
+
+<tr>
+
+<td>
+
+{% if alert.user_name %}
+
+<strong>
+{{ alert.user_name }}
+</strong>
+
+<br>
+
+<small>
+{{ alert.user_email }}
+</small>
+
+{% else %}
+
+Unknown / Admin
+
+{% endif %}
+
+</td>
+
+
+<td class="domain-cell">
+
+{{ alert.url }}
+
+</td>
+
+
+<td class="danger-text">
+
+{{ alert.risk_score }}/100
+
+</td>
+
+
+<td>
+
+{{ alert.source or "Hybrid Detection" }}
+
+</td>
+
+
+<td>
+
+{% if alert.resolved %}
+
+<span class="resolved-badge">
+Resolved
+</span>
+
+{% else %}
+
+<span class="open-alert-badge">
+Open
+</span>
+
+{% endif %}
+
+</td>
+
+
+<td>
+
+{{ alert.created_at }}
+
+</td>
+
+
+<td>
+
+{% if not alert.resolved %}
+
+<form
+    method="POST"
+    action="/admin/alerts/{{ alert.id }}/resolve"
+>
+
+<input
+    type="hidden"
+    name="csrf_token"
+    value="{{ csrf_token() }}"
+>
+
+<button
+    type="submit"
+    class="resolve-alert-button"
+>
+Resolve
+</button>
+
+</form>
+
+{% else %}
+
+✓
+
+{% endif %}
+
+</td>
+
+</tr>
+
+
+{% else %}
+
+<tr>
+
+<td colspan="7">
+No threat alerts found.
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<footer>
+
+<span>
+PhishGuard Cloud Security Platform
+</span>
+
+<a href="/logout">
+Logout
+</a>
+
+</footer>
+
+
+</main>
+
+</div>
+
+
+
+<script>
+
+document
+    .getElementById("alertSearch")
+    .addEventListener(
+        "input",
+        function () {
+
+            const search =
+                this.value.toLowerCase();
+
+            document
+                .querySelectorAll(
+                    "#alertTable tr"
+                )
+                .forEach(row => {
+
+                    row.style.display =
+                        row.textContent
+                            .toLowerCase()
+                            .includes(search)
+                        ? ""
+                        : "none";
+
+                });
+
+        }
+    );
+
+</script>
+
+<script src="/static/admin_motion.js"></script>
+</body>
+</html>

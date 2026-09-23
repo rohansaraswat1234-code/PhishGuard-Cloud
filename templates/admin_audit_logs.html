@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Audit Logs | PhishGuard
+</title>
+
+<link
+    rel="stylesheet"
+    href="/static/admin.css"
+>
+
+<link rel="stylesheet" href="/static/admin_motion.css">
+</head>
+
+
+<body>
+
+<div class="app-layout">
+
+
+<aside class="sidebar">
+
+<div>
+
+<div class="brand">
+
+<div class="brand-icon">
+🛡
+</div>
+
+<div>
+<h2>PhishGuard</h2>
+<span>Cloud Security</span>
+</div>
+
+</div>
+
+
+<nav class="sidebar-menu">
+
+<a href="/admin">
+<span>▦</span>
+Overview
+</a>
+
+<a href="/admin/scanner">
+<span>⌗</span>
+URL Scanner
+</a>
+
+<a href="/admin/history">
+<span>◷</span>
+Scan History
+</a>
+
+<a href="/admin/activity">
+<span>♙</span>
+Admin Panel
+</a>
+
+<a href="/admin/alerts">
+<span>⚠</span>
+Threat Alerts
+</a>
+
+<a href="/admin/blocked-domains">
+<span>⛔</span>
+Blocked Domains
+</a>
+
+<a
+    href="/admin/audit-logs"
+    class="active"
+>
+<span>≡</span>
+Audit Logs
+</a>
+
+<a href="/admin/cloud-status">
+<span>☁</span>
+Cloud Status
+</a>
+
+</nav>
+
+</div>
+
+
+<div class="engine-card">
+
+<div class="engine-line">
+
+<span class="online-dot"></span>
+
+<strong>
+Audit Engine Active
+</strong>
+
+</div>
+
+<p>
+Administrative actions recorded
+</p>
+
+</div>
+
+</aside>
+
+
+
+<main class="main-content">
+
+
+<header class="top-header">
+
+<div>
+
+<p class="section-label">
+SYSTEM ACCOUNTABILITY
+</p>
+
+<h1>
+Audit Logs
+</h1>
+
+<p class="subtitle">
+Track important security and
+administrative actions.
+</p>
+
+</div>
+
+</header>
+
+
+
+<section class="panel">
+
+<div class="panel-heading">
+
+<div>
+
+<h2>
+Security Activity Log
+</h2>
+
+<p>
+Latest 500 recorded actions.
+</p>
+
+</div>
+
+
+<input
+    id="auditSearch"
+    class="admin-search-field"
+    type="text"
+    placeholder="Search action..."
+>
+
+</div>
+
+
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+<th>USER</th>
+<th>ROLE</th>
+<th>ACTION</th>
+<th>DETAILS</th>
+<th>TIME</th>
+</tr>
+
+</thead>
+
+
+<tbody id="auditTable">
+
+{% for log in logs %}
+
+<tr>
+
+<td>
+
+{% if log.user_name %}
+
+{{ log.user_name }}
+
+<br>
+
+<small>
+{{ log.user_email }}
+</small>
+
+{% else %}
+
+System
+
+{% endif %}
+
+</td>
+
+
+<td>
+
+{{ log.role or "system" }}
+
+</td>
+
+
+<td>
+
+<span class="audit-action">
+{{ log.action }}
+</span>
+
+</td>
+
+
+<td>
+
+{{ log.details or "-" }}
+
+</td>
+
+
+<td>
+
+{{ log.created_at }}
+
+</td>
+
+</tr>
+
+
+{% else %}
+
+<tr>
+
+<td colspan="5">
+No audit logs recorded yet.
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<footer>
+
+<span>
+PhishGuard Cloud Security Platform
+</span>
+
+<a href="/logout">
+Logout
+</a>
+
+</footer>
+
+
+</main>
+
+</div>
+
+
+
+<script>
+
+document
+    .getElementById("auditSearch")
+    .addEventListener(
+        "input",
+        function () {
+
+            const search =
+                this.value.toLowerCase();
+
+            document
+                .querySelectorAll(
+                    "#auditTable tr"
+                )
+                .forEach(row => {
+
+                    row.style.display =
+                        row.textContent
+                            .toLowerCase()
+                            .includes(search)
+                        ? ""
+                        : "none";
+
+                });
+
+        }
+    );
+
+</script>
+
+
+<script src="/static/admin_motion.js"></script>
+</body>
+</html>

@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+My Profile | PhishGuard
+</title>
+
+<link
+    rel="stylesheet"
+    href="/static/profile.css"
+>
+
+<link
+    rel="stylesheet"
+    href="/static/motion.css"
+>
+
+</head>
+
+
+<body>
+
+<div class="profile-layout">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="profile-sidebar">
+
+
+<div>
+
+<div class="profile-brand">
+
+<div class="brand-icon">
+🛡
+</div>
+
+<div>
+
+<h2>
+PhishGuard
+</h2>
+
+<span>
+Personal Security
+</span>
+
+</div>
+
+</div>
+
+
+<nav class="profile-menu">
+
+
+<a href="/dashboard">
+
+<span>▦</span>
+Overview
+
+</a>
+
+
+<a href="/scanner">
+
+<span>⌗</span>
+URL Scanner
+
+</a>
+
+
+<a href="/analytics">
+
+<span>▥</span>
+Analytics
+
+</a>
+
+
+<a href="/dashboard#history">
+
+<span>◷</span>
+Scan History
+
+</a>
+
+
+<a
+    href="/profile"
+    class="active"
+>
+
+<span>♙</span>
+Profile
+
+</a>
+
+
+</nav>
+
+</div>
+
+
+
+<div class="profile-engine">
+
+<div>
+
+<span class="online-dot"></span>
+
+<strong>
+Account Protected
+</strong>
+
+</div>
+
+<p>
+Security services active
+</p>
+
+</div>
+
+
+</aside>
+
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="profile-main">
+
+
+<header class="profile-header">
+
+
+<div>
+
+<p class="eyebrow">
+ACCOUNT CENTER
+</p>
+
+<h1>
+My Profile
+</h1>
+
+<p>
+Manage your personal information,
+account security and PhishGuard activity.
+</p>
+
+</div>
+
+
+<div class="profile-header-actions">
+
+<a
+    href="/dashboard"
+    class="back-button"
+>
+← Dashboard
+</a>
+
+
+<a
+    href="/logout"
+    class="pg-logout-button"
+>
+Logout
+</a>
+
+</div>
+
+
+</header>
+
+
+
+<!-- ================= MESSAGES ================= -->
+
+{% if request.args.get("success") %}
+
+<div class="profile-message success-message">
+
+<span>✓</span>
+
+{{ request.args.get("success") }}
+
+</div>
+
+{% endif %}
+
+
+{% if request.args.get("error") %}
+
+<div class="profile-message error-message">
+
+<span>!</span>
+
+{{ request.args.get("error") }}
+
+</div>
+
+{% endif %}
+
+
+
+<!-- ================= HERO ================= -->
+
+<section class="profile-hero">
+
+
+<div class="profile-identity">
+
+
+<div class="large-avatar">
+
+{{ session.get("name", "U")[:2]|upper }}
+
+<span class="avatar-status"></span>
+
+</div>
+
+
+<div>
+
+<span class="account-label">
+PHISHGUARD USER
+</span>
+
+<h2 id="profileDisplayName">
+
+{{ session.get("name", "User") }}
+
+</h2>
+
+
+<p id="profileDisplayEmail">
+
+{{ session.get("email", "") }}
+
+</p>
+
+
+<div class="profile-badges">
+
+<span class="verified-badge">
+✓ Active Account
+</span>
+
+<span class="protected-badge">
+🛡 Protected
+</span>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="hero-security">
+
+
+<div>
+
+<span>
+Account Status
+</span>
+
+<strong class="safe-text">
+Active
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Role
+</span>
+
+<strong>
+User
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+User ID
+</span>
+
+<strong>
+#{{ session.get("user_id", "-") }}
+</strong>
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- ================= STATS ================= -->
+
+<section class="profile-stats">
+
+
+<div class="profile-stat">
+
+<div class="profile-stat-icon">
+⌗
+</div>
+
+<div>
+
+<span>
+Total Scans
+</span>
+
+<strong id="profileTotalScans">
+0
+</strong>
+
+</div>
+
+</div>
+
+
+
+<div class="profile-stat">
+
+<div class="profile-stat-icon safe-stat-icon">
+✓
+</div>
+
+<div>
+
+<span>
+Safe URLs
+</span>
+
+<strong
+    id="profileSafeScans"
+    class="safe-text"
+>
+0
+</strong>
+
+</div>
+
+</div>
+
+
+
+<div class="profile-stat">
+
+<div class="profile-stat-icon threat-stat-icon">
+!
+</div>
+
+<div>
+
+<span>
+Threat Findings
+</span>
+
+<strong
+    id="profileThreatScans"
+    class="danger-text"
+>
+0
+</strong>
+
+</div>
+
+</div>
+
+
+</section>
+
+
+
+<!-- ================= PROFILE GRID ================= -->
+
+<section class="profile-content-grid">
+
+
+<!-- PERSONAL DETAILS -->
+
+<div class="profile-panel">
+
+
+<div class="panel-heading">
+
+
+<div>
+
+<span class="section-icon">
+♙
+</span>
+
+
+<div>
+
+<h2>
+Personal Information
+</h2>
+
+<p>
+Update your PhishGuard account details.
+</p>
+
+</div>
+
+</div>
+
+
+<span class="editable-label">
+EDITABLE
+</span>
+
+
+</div>
+
+
+
+<form
+    action="/profile/update"
+    method="POST"
+    class="profile-form"
+>
+
+
+{% if csrf_token is defined %}
+
+<input
+    type="hidden"
+    name="csrf_token"
+    value="{{ csrf_token() }}"
+>
+
+{% endif %}
+
+
+<div class="form-group">
+
+<label for="profileName">
+
+Full Name
+
+</label>
+
+
+<div class="profile-input-wrapper">
+
+<span>
+♙
+</span>
+
+
+<input
+    id="profileName"
+    name="name"
+    type="text"
+    value="{{ session.get('name', '') }}"
+    minlength="2"
+    maxlength="60"
+    required
+>
+
+</div>
+
+</div>
+
+
+
+<div class="form-group">
+
+<label for="profileEmail">
+
+Email Address
+
+</label>
+
+
+<div class="profile-input-wrapper">
+
+<span>
+✉
+</span>
+
+
+<input
+    id="profileEmail"
+    name="email"
+    type="email"
+    value="{{ session.get('email', '') }}"
+    required
+>
+
+</div>
+
+</div>
+
+
+
+<div class="form-group">
+
+<label>
+
+Account Type
+
+</label>
+
+
+<div class="profile-input-wrapper disabled-input">
+
+<span>
+🛡
+</span>
+
+
+<input
+    type="text"
+    value="Standard PhishGuard User"
+    disabled
+>
+
+</div>
+
+</div>
+
+
+
+<div class="form-actions">
+
+
+<button
+    type="reset"
+    class="cancel-button"
+>
+Reset
+</button>
+
+
+<button
+    type="submit"
+    class="save-button"
+>
+Save Changes
+<span>→</span>
+</button>
+
+
+</div>
+
+
+</form>
+
+
+</div>
+
+
+
+<!-- SECURITY -->
+
+<div class="profile-panel security-panel">
+
+
+<div class="panel-heading">
+
+
+<div>
+
+<span class="section-icon">
+🛡
+</span>
+
+
+<div>
+
+<h2>
+Account Security
+</h2>
+
+<p>
+Manage password and account protection.
+</p>
+
+</div>
+
+</div>
+
+
+<span class="secure-state">
+
+<span class="online-dot"></span>
+SECURE
+
+</span>
+
+
+</div>
+
+
+
+<div class="security-list">
+
+
+<div class="security-item">
+
+
+<div class="security-item-icon">
+•••
+</div>
+
+
+<div>
+
+<strong>
+Password
+</strong>
+
+<p>
+Keep your account protected with
+a strong password.
+</p>
+
+</div>
+
+
+<a href="/profile/change-password">
+
+Change Password
+
+</a>
+
+
+</div>
+
+
+
+<div class="security-item">
+
+
+<div class="security-item-icon">
+R
+</div>
+
+
+<div>
+
+<strong>
+Rule Engine
+</strong>
+
+<p>
+URL pattern detection is enabled
+for your scans.
+</p>
+
+</div>
+
+
+<span class="status-pill">
+Active
+</span>
+
+
+</div>
+
+
+
+<div class="security-item">
+
+
+<div class="security-item-icon">
+ML
+</div>
+
+
+<div>
+
+<strong>
+Machine Learning
+</strong>
+
+<p>
+Phishing ML prediction is enabled.
+</p>
+
+</div>
+
+
+<span class="status-pill">
+Active
+</span>
+
+
+</div>
+
+
+
+<div class="security-item">
+
+
+<div class="security-item-icon">
+DB
+</div>
+
+
+<div>
+
+<strong>
+Personal Scan History
+</strong>
+
+<p>
+Your URL scan results are linked
+to your account.
+</p>
+
+</div>
+
+
+<a href="/dashboard#history">
+
+View
+
+</a>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="security-score-box">
+
+
+<div>
+
+<span>
+Account Protection
+</span>
+
+<strong>
+Protected
+</strong>
+
+</div>
+
+
+<div class="security-progress">
+
+<div></div>
+
+</div>
+
+
+<small>
+Authentication and phishing protection enabled.
+</small>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- ================= QUICK ACTIONS ================= -->
+
+<section class="profile-panel quick-tools-panel">
+
+
+<div class="panel-heading">
+
+
+<div>
+
+<span class="section-icon">
+⚡
+</span>
+
+
+<div>
+
+<h2>
+Quick Actions
+</h2>
+
+<p>
+Jump directly to PhishGuard tools.
+</p>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="profile-actions-grid">
+
+
+<a href="/scanner">
+
+<div class="action-icon">
+⌗
+</div>
+
+<div>
+
+<strong>
+Scan a URL
+</strong>
+
+<p>
+Analyse a suspicious website
+</p>
+
+</div>
+
+<span>→</span>
+
+</a>
+
+
+
+<a href="/analytics">
+
+<div class="action-icon">
+▥
+</div>
+
+<div>
+
+<strong>
+Security Analytics
+</strong>
+
+<p>
+View your scanning trends
+</p>
+
+</div>
+
+<span>→</span>
+
+</a>
+
+
+
+<a href="/dashboard#history">
+
+<div class="action-icon">
+◷
+</div>
+
+<div>
+
+<strong>
+Scan History
+</strong>
+
+<p>
+Review previous URL scans
+</p>
+
+</div>
+
+<span>→</span>
+
+</a>
+
+
+
+<a href="/profile/change-password">
+
+<div class="action-icon">
+⌘
+</div>
+
+<div>
+
+<strong>
+Change Password
+</strong>
+
+<p>
+Update account credentials
+</p>
+
+</div>
+
+<span>→</span>
+
+</a>
+
+
+</div>
+
+
+</section>
+
+
+
+<footer>
+
+
+<span>
+🛡 PhishGuard Cloud Security Platform
+</span>
+
+
+<div>
+
+<a href="/dashboard">
+Dashboard
+</a>
+
+<a href="/scanner">
+Scanner
+</a>
+
+<a href="/analytics">
+Analytics
+</a>
+
+</div>
+
+
+</footer>
+
+
+</main>
+
+
+</div>
+
+
+
+<script>
+
+
+function getNumber(
+    data,
+    keys
+) {
+
+    for (
+        const key
+        of keys
+    ) {
+
+        if (
+            data[key]
+            !== undefined
+            &&
+            data[key]
+            !== null
+        ) {
+
+            return (
+                Number(
+                    data[key]
+                )
+                || 0
+            );
+
+        }
+
+    }
+
+    return 0;
+
+}
+
+
+
+async function loadProfileStats() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/stats"
+            );
+
+
+        if (!response.ok) {
+            return;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const total =
+            getNumber(
+                data,
+                [
+                    "total",
+                    "total_scans"
+                ]
+            );
+
+
+        const safe =
+            getNumber(
+                data,
+                [
+                    "safe",
+                    "safe_scans"
+                ]
+            );
+
+
+        const suspicious =
+            getNumber(
+                data,
+                [
+                    "suspicious",
+                    "suspicious_scans"
+                ]
+            );
+
+
+        const phishing =
+            getNumber(
+                data,
+                [
+                    "phishing",
+                    "phishing_scans"
+                ]
+            );
+
+
+        document
+            .getElementById(
+                "profileTotalScans"
+            )
+            .textContent =
+                total;
+
+
+        document
+            .getElementById(
+                "profileSafeScans"
+            )
+            .textContent =
+                safe;
+
+
+        document
+            .getElementById(
+                "profileThreatScans"
+            )
+            .textContent =
+                suspicious
+                + phishing;
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Profile stats error:",
+            error
+        );
+
+    }
+
+}
+
+
+loadProfileStats();
+
+
+</script>
+
+
+<script src="/static/ui_animations.js"></script>
+
+
+</body>
+
+</html>

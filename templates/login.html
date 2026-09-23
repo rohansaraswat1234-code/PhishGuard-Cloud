@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Login | PhishGuard Cloud</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/auth.css"
+    >
+</head>
+
+<body>
+
+<div class="auth-page">
+
+    <div class="brand">
+        <div class="shield">🛡️</div>
+
+        <h1>PhishGuard Cloud</h1>
+
+        <p>
+            AI-powered phishing protection
+        </p>
+    </div>
+
+
+    <div class="auth-card">
+
+        <div class="tabs">
+
+            <button
+                id="loginTab"
+                onclick="showLogin()"
+            >
+                Login
+            </button>
+
+            <button
+                id="registerTab"
+                onclick="showRegister()"
+            >
+                Create Account
+            </button>
+
+        </div>
+
+
+        {% if request.args.get('reset') == 'success' %}
+        <div class="success-message">
+            Password reset successfully. Please login.
+        </div>
+        {% endif %}
+
+
+        {% if request.args.get('registered') %}
+        <div class="success-message">
+            Account created successfully. Please login.
+        </div>
+        {% endif %}
+
+
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+
+        <form
+            id="loginForm"
+            method="POST"
+            action="/login"
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <h2>Welcome Back</h2>
+
+            <p class="subtitle">
+                Login to continue to PhishGuard
+            </p>
+
+            <label>Email Address</label>
+
+            <input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+            >
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+            >
+
+            <a
+                href="/forgot-password"
+                class="forgot-link"
+            >
+                Forgot Password?
+            </a>
+
+            <button
+                class="main-button"
+                type="submit"
+            >
+                Login
+            </button>
+
+        </form>
+
+
+        <form
+            id="registerForm"
+            method="POST"
+            action="/register"
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <h2>Create Account</h2>
+
+            <p class="subtitle">
+                Start scanning suspicious URLs
+            </p>
+
+            <label>Full Name</label>
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Your name"
+                required
+            >
+
+            <label>Email Address</label>
+
+            <input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+            >
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Minimum 8 characters"
+                minlength="8"
+                required
+            >
+
+            <button
+                class="main-button"
+                type="submit"
+            >
+                Create Account
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function showLogin() {
+    document
+        .getElementById("loginForm")
+        .style.display = "block";
+
+    document
+        .getElementById("registerForm")
+        .style.display = "none";
+
+    document
+        .getElementById("loginTab")
+        .classList.add("active");
+
+    document
+        .getElementById("registerTab")
+        .classList.remove("active");
+}
+
+
+function showRegister() {
+    document
+        .getElementById("loginForm")
+        .style.display = "none";
+
+    document
+        .getElementById("registerForm")
+        .style.display = "block";
+
+    document
+        .getElementById("registerTab")
+        .classList.add("active");
+
+    document
+        .getElementById("loginTab")
+        .classList.remove("active");
+}
+
+
+{% if mode == "register" %}
+showRegister();
+{% else %}
+showLogin();
+{% endif %}
+
+</script>
+
+</body>
+</html>

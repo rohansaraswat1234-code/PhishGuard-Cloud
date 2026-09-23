@@ -1,0 +1,90 @@
+from flask import Flask, request, jsonify
+from urllib.parse import urlparse
+import re
+
+app = Flask(__name__)
+
+
+def analyze_url(url):
+    score = 0
+    reasons = []
+
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+
+    parsed_url = urlparse(url)
+
+    if len(url) > 75:
+        score += 20
+        reasons.append("URL is unusually long")
+
+    if re.search(r"\d+\.\d+\.\d+\.\d+", parsed_url.netloc):
+        score += 30
+        reasons.append("IP address used instead of domain name")
+
+    if "@" in url:
+        score += 25
+        reasons.append("@ symbol found in URL")
+
+    if parsed_url.netloc.count(".") >= 3:
+        score += 15
+        reasons.append("Multiple subdomains detected")
+
+    suspicious_words = [
+        "login",
+        "verify",
+        "account",
+        "secure",
+        "update",
+        "banking",
+        "confirm",
+        "password"
+    ]
+
+    for word in suspicious_words:
+        if word in url.lower():
+            score += 8
+            reasons.append(f"Suspicious keyword detected: {word}")
+
+    score = min(score, 100)
+
+    if score >= 60:
+        status = "PHISHING"
+    elif score >= 30:
+        status = "SUSPICIOUS"
+    else:
+        status = "SAFE"
+
+    return {
+        "url": url,
+        "status": status,
+        "risk_score": score,
+        "reasons": reasons
+    }
+
+
+@app.route("/")
+def home():
+    return jsonify({
+        "project": "PhishGuard Cloud",
+        "status": "running"
+    })
+
+
+@app.route("/api/scan", methods=["POST"])
+def scan_url():
+    data = request.get_json()
+
+    if not data or "url" not in data:
+        return jsonify({"error": "URL is required"}), 400
+
+    result = analyze_url(data["url"])
+    return jsonify(result)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+
+

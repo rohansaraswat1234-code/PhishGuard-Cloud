@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        User Details | PhishGuard Admin
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/static/admin_activity.css"
+    >
+
+<link rel="stylesheet" href="/static/admin_motion.css">
+</head>
+
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🛡️ PhishGuard Admin
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/admin">
+            Dashboard
+        </a>
+
+        <a href="/admin/activity">
+            User Activity
+        </a>
+
+        <a
+            href="/logout"
+            class="logout"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<main>
+
+    <section class="page-heading">
+
+        <a
+            href="/admin/activity"
+            class="view-button"
+        >
+            ← Back to User Activity
+        </a>
+
+        <br><br>
+
+        <p class="tag">
+            USER SECURITY PROFILE
+        </p>
+
+        <h1>
+            {{ user.name }}
+        </h1>
+
+        <p>
+            {{ user.email }}
+        </p>
+
+    </section>
+
+
+    <section
+        class="stats-grid"
+        style="
+            display:grid;
+            grid-template-columns:
+                repeat(4,1fr);
+            gap:18px;
+            margin-bottom:25px;
+        "
+    >
+
+        <div class="panel">
+
+            <p>Total Scans</p>
+
+            <h2>
+                {{ stats.total or 0 }}
+            </h2>
+
+        </div>
+
+
+        <div class="panel">
+
+            <p>Safe</p>
+
+            <h2 class="safe">
+                {{ stats.safe or 0 }}
+            </h2>
+
+        </div>
+
+
+        <div class="panel">
+
+            <p>Suspicious</p>
+
+            <h2 class="suspicious">
+                {{ stats.suspicious or 0 }}
+            </h2>
+
+        </div>
+
+
+        <div class="panel">
+
+            <p>Phishing</p>
+
+            <h2 class="phishing">
+                {{ stats.phishing or 0 }}
+            </h2>
+
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <h2>
+                    Scan History
+                </h2>
+
+                <p>
+                    Latest 100 scans performed
+                    by this user
+                </p>
+
+            </div>
+
+
+            <input
+                id="userSearch"
+                type="text"
+                placeholder="Search scans..."
+            >
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>URL</th>
+                        <th>Final</th>
+                        <th>Rule</th>
+                        <th>ML</th>
+                        <th>ML %</th>
+                        <th>Risk</th>
+                        <th>Time</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="userTable">
+
+                {% for scan in scans %}
+
+                    <tr>
+
+                        <td>
+                            {{ scan.url }}
+                        </td>
+
+                        <td>
+                            {{ scan.status }}
+                        </td>
+
+                        <td>
+                            {{ scan.rule_status or "-" }}
+                        </td>
+
+                        <td>
+                            {{ scan.ml_prediction or "-" }}
+                        </td>
+
+                        <td>
+
+                            {% if scan.ml_probability is not none %}
+
+                                {{ "%.2f"|format(scan.ml_probability) }}%
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ scan.risk_score }}
+                        </td>
+
+                        <td>
+                            {{ scan.scanned_at }}
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="7">
+                            This user has not scanned
+                            any URL yet.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+document.getElementById(
+    "userSearch"
+).addEventListener(
+    "input",
+    function () {
+
+        const search =
+            this.value.toLowerCase();
+
+        document.querySelectorAll(
+            "#userTable tr"
+        ).forEach(row => {
+
+            row.style.display =
+                row.textContent
+                    .toLowerCase()
+                    .includes(search)
+                ? ""
+                : "none";
+
+        });
+
+    }
+);
+
+</script>
+
+<script src="/static/admin_motion.js"></script>
+</body>
+</html>

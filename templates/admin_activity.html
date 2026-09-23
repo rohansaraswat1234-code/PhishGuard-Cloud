@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>User Activity | PhishGuard Admin</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/admin_activity.css"
+    >
+
+<link rel="stylesheet" href="/static/admin_motion.css">
+</head>
+
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🛡️ PhishGuard Admin
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/admin">
+            Dashboard
+        </a>
+
+        <a
+            href="/admin/activity"
+            class="active"
+        >
+            User Activity
+        </a>
+
+        <a
+            href="/logout"
+            class="logout"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<main>
+
+    <section class="page-heading">
+
+        <p class="tag">
+            SECURITY MONITORING
+        </p>
+
+        <h1>
+            User Activity Monitor
+        </h1>
+
+        <p>
+            Monitor phishing scans performed
+            by registered users.
+        </p>
+
+    </section>
+
+
+    <section class="panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <h2>
+                    Registered Users
+                </h2>
+
+                <p>
+                    Scan activity by user
+                </p>
+
+            </div>
+
+
+            <input
+                id="userSearch"
+                type="text"
+                placeholder="Search name or email..."
+            >
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Safe</th>
+                        <th>Suspicious</th>
+                        <th>Phishing</th>
+                        <th>Last Scan</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="userTable">
+
+                {% for user in users %}
+
+                    <tr>
+
+                        <td>
+                            {{ user.name }}
+                        </td>
+
+                        <td>
+                            {{ user.email }}
+                        </td>
+
+                        <td>
+
+                            {% if user.is_active %}
+
+                            <span class="status active-status">
+                                Active
+                            </span>
+
+                            {% else %}
+
+                            <span class="status blocked-status">
+                                Blocked
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ user.total_scans or 0 }}
+                        </td>
+
+                        <td class="safe">
+                            {{ user.safe_scans or 0 }}
+                        </td>
+
+                        <td class="suspicious">
+                            {{ user.suspicious_scans or 0 }}
+                        </td>
+
+                        <td class="phishing">
+                            {{ user.phishing_scans or 0 }}
+                        </td>
+
+                        <td>
+                            {{ user.last_scan or "Never" }}
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="/admin/user/{{ user.id }}"
+                                class="view-button"
+                            >
+                                View
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="9">
+                            No registered users found.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+document.getElementById(
+    "userSearch"
+).addEventListener(
+    "input",
+    function () {
+
+        const search =
+            this.value.toLowerCase();
+
+        const rows =
+            document.querySelectorAll(
+                "#userTable tr"
+            );
+
+        rows.forEach(row => {
+
+            row.style.display =
+                row.textContent
+                    .toLowerCase()
+                    .includes(search)
+                ? ""
+                : "none";
+
+        });
+
+    }
+);
+
+</script>
+
+<script src="/static/admin_motion.js"></script>
+</body>
+
+</html>
