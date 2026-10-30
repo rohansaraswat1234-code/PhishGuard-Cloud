@@ -103,9 +103,19 @@ def init_db():
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             role TEXT NOT NULL DEFAULT 'user',
+            is_active INTEGER NOT NULL DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # Migrate existing databases safely.
+    cursor.execute("PRAGMA table_info(users)")
+    user_columns = {row[1] for row in cursor.fetchall()}
+
+    if "is_active" not in user_columns:
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1"
+        )
 
     conn.commit()
     conn.close()
@@ -294,15 +304,15 @@ def final_verdict(rule_status, ml_prediction, ml_probability):
     if rule_status == "PHISHING":
         return "PHISHING"
 
-    if (
-        ml_prediction == "PHISHING"
-        and ml_probability >= 80
-    ):
-        return "PHISHING"
-
     if rule_status == "SUSPICIOUS":
+        if (
+            ml_prediction == "PHISHING"
+            and ml_probability >= 80
+        ):
+            return "PHISHING"
         return "SUSPICIOUS"
 
+    # ML alone is not enough to label a SAFE-rule URL as PHISHING.
     if (
         ml_prediction == "PHISHING"
         and ml_probability >= 50
