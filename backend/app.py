@@ -28,7 +28,15 @@ app = Flask(
 )
 
 
-DB_PATH = PROJECT_ROOT / "database" / "phishguard.db"
+configured_db_path = os.environ.get("DATABASE_PATH")
+DB_PATH = (
+    Path(configured_db_path).expanduser()
+    if configured_db_path
+    else PROJECT_ROOT / "database" / "phishguard.db"
+)
+
+if not DB_PATH.is_absolute():
+    DB_PATH = PROJECT_ROOT / DB_PATH
 
 
 def csrf_token():
@@ -57,15 +65,23 @@ def valid_csrf():
 
 app.jinja_env.globals["csrf_token"] = csrf_token
 
-app.secret_key = os.environ.get(
-    "SECRET_KEY",
-    "phishguard-local-development-key"
-)
+production_mode = os.environ.get(
+    "PRODUCTION", ""
+).strip().lower() in {"1", "true", "yes"}
+
+secret_key = os.environ.get("SECRET_KEY")
+
+if production_mode and not secret_key:
+    raise RuntimeError(
+        "Set the SECRET_KEY environment variable when PRODUCTION=1."
+    )
+
+app.secret_key = secret_key or "phishguard-local-development-key"
 
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=os.environ.get("PRODUCTION") == "1",
+    SESSION_COOKIE_SECURE=production_mode,
     PERMANENT_SESSION_LIFETIME=timedelta(hours=2)
 )
 
@@ -3947,6 +3963,9 @@ def final_blocked_user_guard():
 
 if __name__ == "__main__":
     app.run(
-        debug=True,
-        port=5000
+        host="0.0.0.0",
+        debug=os.environ.get(
+            "FLASK_DEBUG", ""
+        ).strip().lower() in {"1", "true", "yes"},
+        port=int(os.environ.get("PORT", "5000"))
     )
