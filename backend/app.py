@@ -252,6 +252,13 @@ def analyze_url(url):
                 f"Suspicious keyword detected: {word}"
             )
 
+    # Reserved .invalid domains are not publicly verifiable.
+    if domain.endswith(".invalid"):
+        score += 30
+        reasons.append(
+            "Reserved .invalid domain: not a publicly verifiable website"
+        )
+
     suspicious_tlds = [
         ".tk",
         ".ml",
