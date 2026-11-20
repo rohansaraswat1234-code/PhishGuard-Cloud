@@ -7,6 +7,10 @@ import sys
 import re
 import os
 import secrets
+import ipaddress
+import smtplib
+import ssl
+from email.message import EmailMessage
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from flask_limiter import Limiter
@@ -14,6 +18,13 @@ from flask_limiter.util import get_remote_address
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Load local environment variables when python-dotenv is installed.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(PROJECT_ROOT / ".env")
+except ImportError:
+    pass
 
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -28,7 +39,12 @@ app = Flask(
 )
 
 
-DB_PATH = PROJECT_ROOT / "database" / "phishguard.db"
+DB_PATH = Path(
+    os.environ.get(
+        "PHISHGUARD_DB_PATH",
+        str(PROJECT_ROOT / "database" / "phishguard.db")
+    )
+).expanduser()
 
 
 def csrf_token():
@@ -42,38 +58,94 @@ def csrf_token():
 
 
 def valid_csrf():
-    sent_token = request.form.get("csrf_token")
+    sent_token = (
+        request.headers.get("X-CSRF-Token")
+        or request.form.get("csrf_token")
+    )
+
+    if not sent_token and request.is_json:
+        payload = request.get_json(silent=True) or {}
+        sent_token = payload.get("csrf_token")
+
     saved_token = session.get("_csrf_token")
 
     return bool(
         sent_token
         and saved_token
-        and secrets.compare_digest(
-            sent_token,
-            saved_token
-        )
+        and secrets.compare_digest(str(sent_token), str(saved_token))
     )
+
+
+@app.before_request
+def enforce_csrf_protection():
+    """Reject state-changing requests without a session-bound CSRF token."""
+    if request.method in {"GET", "HEAD", "OPTIONS", "TRACE"}:
+        return None
+
+    if valid_csrf():
+        return None
+
+    message = {"error": "CSRF validation failed. Refresh the page and try again."}
+    if request.path.startswith("/api/") or request.is_json:
+        return jsonify(message), 403
+
+    return message["error"], 403
 
 
 app.jinja_env.globals["csrf_token"] = csrf_token
 
-app.secret_key = os.environ.get(
-    "SECRET_KEY",
-    "phishguard-local-development-key"
-)
+production_mode = os.environ.get("PRODUCTION", "0").strip().lower() in {
+    "1", "true", "yes"
+}
+secret_key = os.environ.get("SECRET_KEY", "").strip()
+
+if not secret_key:
+    if production_mode:
+        raise RuntimeError(
+            "SECRET_KEY must be set when PRODUCTION=1. "
+            "Generate one with: python -c 'import secrets; print(secrets.token_urlsafe(48))'"
+        )
+    secret_key = secrets.token_urlsafe(48)
+    print("WARNING: SECRET_KEY is not set; using a temporary local-development key.")
+
+app.secret_key = secret_key
+secure_cookie = os.environ.get("SESSION_COOKIE_SECURE", "").strip().lower()
+if not secure_cookie:
+    secure_cookie = "1" if production_mode else "0"
 
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=os.environ.get("PRODUCTION") == "1",
-    PERMANENT_SESSION_LIFETIME=timedelta(hours=2)
+    SESSION_COOKIE_SECURE=(
+        production_mode or secure_cookie in {"1", "true", "yes"}
+    ),
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=2),
+    MAX_CONTENT_LENGTH=1 * 1024 * 1024,
 )
 
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
-    default_limits=[]
+    default_limits=[],
+    storage_uri=os.environ.get("RATELIMIT_STORAGE_URI", "memory://"),
 )
+
+
+@app.after_request
+def add_security_headers(response):
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Permissions-Policy",
+        "camera=(), microphone=(), geolocation=()"
+    )
+    if app.config.get("SESSION_COOKIE_SECURE"):
+        response.headers.setdefault(
+            "Strict-Transport-Security",
+            "max-age=31536000; includeSubDomains"
+        )
+    return response
 
 
 def init_db():
@@ -125,38 +197,60 @@ init_db()
 
 
 def is_valid_url(url):
-    url = str(url).strip()
-
-    if not url or " " in url:
+    """Validate an HTTP(S) URL's syntax; this function never fetches the URL."""
+    if not isinstance(url, str):
         return False
 
-    if not url.startswith(("http://", "https://")):
-        test_url = "https://" + url
-    else:
-        test_url = url
+    candidate = url.strip()
+    if (
+        not candidate
+        or len(candidate) > 2048
+        or any(character.isspace() or ord(character) < 32 for character in candidate)
+    ):
+        return False
+
+    if not re.match(r"^https?://", candidate, re.IGNORECASE):
+        candidate = "https://" + candidate
 
     try:
-        parsed = urlparse(test_url)
+        parsed = urlparse(candidate)
+        if parsed.scheme.lower() not in {"http", "https"}:
+            return False
+        if parsed.username is not None or parsed.password is not None:
+            return False
+        # Accessing .port validates that a supplied port is numeric and in range.
+        _ = parsed.port
         hostname = parsed.hostname
-
         if not hostname:
             return False
 
-        # Allow normal domains or IPv4 addresses
-        is_ip = re.fullmatch(
-            r"\d{1,3}(?:\.\d{1,3}){3}",
-            hostname
+        try:
+            ipaddress.ip_address(hostname)
+            return True
+        except ValueError:
+            # Do not accept malformed dotted-decimal IPv4 values as domain names.
+            if re.fullmatch(r"\d{1,3}(?:\.\d{1,3}){3}", hostname):
+                return False
+
+        ascii_host = hostname.encode("idna").decode("ascii").lower().rstrip(".")
+        if len(ascii_host) > 253 or "." not in ascii_host:
+            return False
+
+        labels = ascii_host.split(".")
+        if len(labels) < 2:
+            return False
+        if all(label.isdigit() for label in labels):
+            return False
+        if not (labels[-1].isalpha() or labels[-1].startswith("xn--")):
+            return False
+
+        label_pattern = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
+        return all(
+            1 <= len(label) <= 63 and label_pattern.fullmatch(label)
+            for label in labels
         )
 
-        is_domain = (
-            "." in hostname
-            and not hostname.startswith(".")
-            and not hostname.endswith(".")
-        )
-
-        return bool(is_ip or is_domain)
-
-    except Exception:
+    except (ValueError, UnicodeError):
         return False
 
 
@@ -173,7 +267,7 @@ def analyze_url(url):
 
     parsed_url = urlparse(url)
 
-    domain = parsed_url.netloc.lower()
+    domain = (parsed_url.hostname or "").lower()
     full_url = url.lower()
 
     if len(url) > 75:
@@ -188,7 +282,13 @@ def analyze_url(url):
         score += 10
         reasons.append("Website does not use HTTPS")
 
-    if re.search(r"\d+\.\d+\.\d+\.\d+", domain):
+    try:
+        ipaddress.ip_address(domain)
+        host_is_ip = True
+    except ValueError:
+        host_is_ip = False
+
+    if host_is_ip:
         score += 30
         reasons.append("IP address used instead of domain name")
 
@@ -420,6 +520,56 @@ def login():
     )
 
 
+def send_password_reset_email(recipient, reset_url):
+    """Send a reset link when SMTP is configured; print it only in development."""
+    smtp_host = os.environ.get("SMTP_HOST", "").strip()
+    if not smtp_host:
+        if not production_mode:
+            print("\nPHISHGUARD PASSWORD RESET LINK")
+            print(reset_url)
+            print("Valid for 15 minutes\n")
+        return False
+
+    message = EmailMessage()
+    message["Subject"] = "Reset your PhishGuard password"
+    message["From"] = os.environ.get("SMTP_FROM", "PhishGuard <no-reply@localhost>")
+    message["To"] = recipient
+    message.set_content(
+        "A password reset was requested for your PhishGuard account.\n\n"
+        f"Use this link within 15 minutes: {reset_url}\n\n"
+        "If you did not request this, you can ignore this email."
+    )
+
+    username = os.environ.get("SMTP_USERNAME", "").strip()
+    password = os.environ.get("SMTP_PASSWORD", "")
+    use_ssl = os.environ.get("SMTP_USE_SSL", "0").strip().lower() in {"1", "true", "yes"}
+
+    try:
+        port = int(os.environ.get("SMTP_PORT", "587"))
+        if not 1 <= port <= 65535:
+            raise ValueError("SMTP_PORT must be between 1 and 65535")
+        if use_ssl:
+            with smtplib.SMTP_SSL(
+                smtp_host, port, context=ssl.create_default_context(), timeout=15
+            ) as server:
+                if username:
+                    server.login(username, password)
+                server.send_message(message)
+        else:
+            with smtplib.SMTP(smtp_host, port, timeout=15) as server:
+                server.ehlo()
+                server.starttls(context=ssl.create_default_context())
+                server.ehlo()
+                if username:
+                    server.login(username, password)
+                server.send_message(message)
+        return True
+    except Exception as error:
+        # Do not expose SMTP internals or account existence to the requester.
+        app.logger.error("Password reset email delivery failed: %s", error)
+        return False
+
+
 @app.route("/forgot-password", methods=["GET", "POST"])
 @limiter.limit("3 per minute", methods=["POST"])
 def forgot_password():
@@ -441,7 +591,7 @@ def forgot_password():
         # whether an account exists.
         message = (
             "If an account exists for that email, "
-            "a password reset link has been generated."
+            "password reset instructions will be sent when email delivery is configured."
         )
 
         if user:
@@ -460,11 +610,7 @@ def forgot_password():
                 _external=True
             )
 
-            print("\n======================================")
-            print("PHISHGUARD PASSWORD RESET LINK")
-            print(reset_url)
-            print("Valid for 15 minutes")
-            print("======================================\n")
+            send_password_reset_email(email, reset_url)
 
     return render_template(
         "forgot_password.html",
@@ -1138,6 +1284,7 @@ def clear_all_history():
 
 
 @app.route("/user/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
 def user_login():
 
     if session.get("user_id"):
@@ -1212,6 +1359,7 @@ def user_login():
 
 
 @app.route("/user/register", methods=["POST"])
+@limiter.limit("5 per hour")
 def user_register():
 
     name = request.form.get(
@@ -1289,6 +1437,7 @@ def user_register():
 
 
 @app.route("/admin/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
 def admin_login():
 
     if session.get("user_id"):
@@ -1364,6 +1513,7 @@ def admin_login():
 
 
 @app.route("/admin/register", methods=["POST"])
+@limiter.limit("3 per hour")
 def admin_register():
 
     name = request.form.get(
@@ -1386,12 +1536,34 @@ def admin_register():
         ""
     )
 
-    required_code = os.environ.get(
-        "ADMIN_REGISTRATION_CODE",
-        "PHISHGUARD-ADMIN-2026"
-    )
+    conn = sqlite3.connect(DB_PATH)
+    admin_count = conn.execute(
+        "SELECT COUNT(*) FROM users WHERE role = 'admin'"
+    ).fetchone()[0]
+    conn.close()
 
-    if access_code != required_code:
+    if admin_count > 0:
+        return render_template(
+            "admin_auth.html",
+            error="Admin self-registration is closed. Ask an existing administrator.",
+            mode="register"
+        ), 403
+
+    required_code = os.environ.get("ADMIN_REGISTRATION_CODE", "").strip()
+
+    # Admin self-registration is disabled unless an operator explicitly sets
+    # a strong one-time/shared code in the deployment environment.
+    if not required_code:
+        return render_template(
+            "admin_auth.html",
+            error=(
+                "Admin registration is disabled. Create the first admin "
+                "with: python backend/create_admin.py"
+            ),
+            mode="register"
+        ), 403
+
+    if not secrets.compare_digest(access_code, required_code):
         return render_template(
             "admin_auth.html",
             error="Invalid Admin Access Code",
@@ -2003,6 +2175,7 @@ def scanner():
 
 
 @app.route("/api/scan", methods=["POST"])
+@limiter.limit("30 per minute")
 def scan_url():
 
     if not session.get("user_id"):
@@ -3707,8 +3880,6 @@ def admin_control_csrf_ok():
 
     if "valid_csrf" not in globals():
         return True
-
-    import secrets
 
     saved = session.get("_csrf_token")
 
