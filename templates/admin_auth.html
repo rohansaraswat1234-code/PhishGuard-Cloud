@@ -2,6 +2,8 @@
 <html lang="en">
 
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="{{ url_for('static', filename='csrf.js') }}"></script>
 
     <meta charset="UTF-8">
 
@@ -87,6 +89,8 @@
             method="POST"
             action="/admin/login"
         >
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
 
             <h2>
                 Administrator Login
@@ -130,6 +134,8 @@
             method="POST"
             action="/admin/register"
         >
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
 
             <h2>
                 Create Admin Account
