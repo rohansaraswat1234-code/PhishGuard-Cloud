@@ -1,3 +1,20 @@
+
+def levenshtein_dist(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein_dist(s2, s1)
+    if len(s2) == 0:
+        return len(s1)
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+    return previous_row[-1]
+
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from urllib.parse import urlparse
 from pathlib import Path
@@ -351,6 +368,50 @@ def analyze_url(url):
             reasons.append(
                 f"Suspicious keyword detected: {word}"
             )
+
+    # Trusted application domains
+    trusted_apps = {"phishguard-cloud.onrender.com", "127.0.0.1", "localhost"}
+    if domain in trusted_apps:
+        return {
+            "url": url,
+            "status": "SAFE",
+            "risk_score": 0,
+            "reasons": ["Verified official application domain"],
+            "is_trusted": True
+        }
+
+    # Brand Impersonation & Typosquatting checks
+    brand_map = {
+        "ebay": ["ebay.com", "ebay.co.uk", "ebay.de", "ebay.in"],
+        "paypal": ["paypal.com", "paypal.me"],
+        "amazon": ["amazon.com", "amazon.in", "amazon.co.uk"],
+        "google": ["google.com", "google.co.in", "gmail.com"],
+        "apple": ["apple.com", "icloud.com"],
+        "microsoft": ["microsoft.com", "live.com", "outlook.com"],
+        "netflix": ["netflix.com"],
+        "facebook": ["facebook.com", "fb.com"],
+        "instagram": ["instagram.com"],
+        "whatsapp": ["whatsapp.com"],
+        "chase": ["chase.com"],
+        "binance": ["binance.com"]
+    }
+
+    # Detect Brand Impersonation on third-party domains
+    for brand, legit_domains in brand_map.items():
+        if brand in domain and not any(domain == d or domain.endswith("." + d) for d in legit_domains):
+            score += 45
+            reasons.append(f"Brand impersonation detected: '{brand}' on third-party domain ({domain})")
+            break
+
+    # Detect Typosquatting (Levenshtein distance 1-2)
+    parts = domain.split(".")
+    core_label = parts[-2] if len(parts) >= 2 else parts[0]
+    for brand in brand_map:
+        if core_label != brand and len(core_label) >= 4 and abs(len(core_label) - len(brand)) <= 2:
+            if 1 <= levenshtein_dist(core_label, brand) <= 2:
+                score += 35
+                reasons.append(f"Typosquatting detected: domain closely mimics popular brand '{brand}'")
+                break
 
     # Reserved .invalid domains are not publicly verifiable.
     if domain.endswith(".invalid"):
@@ -2194,6 +2255,13 @@ def scan_url():
         ), 400
 
     result = analyze_url(data["url"])
+    if result.get("is_trusted"):
+        result["rule_status"] = "SAFE"
+        result["ml_prediction"] = "SAFE"
+        result["ml_probability"] = 0.0
+        result["status"] = "SAFE"
+        save_scan(result)
+        return jsonify(result)
 
     rule_status = result["status"]
 
