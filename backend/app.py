@@ -2271,6 +2271,7 @@ def scan_url():
         result["ml_prediction"] = "SAFE"
         result["ml_probability"] = 0.0
         result["status"] = "SAFE"
+        result["ai_analysis"] = generate_ai_analysis(result["url"], result)
         save_scan(result)
         return jsonify(result)
 
