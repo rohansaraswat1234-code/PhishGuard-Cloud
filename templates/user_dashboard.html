@@ -319,6 +319,24 @@ User Dashboard | PhishGuard Cloud
 
     </div>
 
+
+    <!-- ================= AI THREAT INTELLIGENCE ANALYST ================= -->
+    <div id="aiThreatCard" class="dashboard-result hidden" style="margin-top: 20px; border-left: 4px solid #6366f1; background: rgba(30, 41, 59, 0.7); padding: 18px; border-radius: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 22px;">🤖</span>
+                <strong style="font-size: 15px; color: #a5b4fc;">PhishGuard AI Threat Analyst</strong>
+                <span style="font-size: 10px; padding: 2px 8px; border-radius: 12px; background: rgba(99, 102, 241, 0.25); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.4);">Explainable AI</span>
+            </div>
+            <span id="aiSourceBadge" style="font-size: 11px; color: #94a3b8;">AI Intelligence</span>
+        </div>
+        <p id="aiSummaryText" style="margin: 0 0 10px 0; font-size: 13.5px; line-height: 1.6; color: #e2e8f0;"></p>
+        <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px;">
+            <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">ACTION:</span>
+            <span id="aiActionText" style="font-size: 12.5px; font-weight: 600; color: #38bdf8;"></span>
+        </div>
+    </div>
+
 </section>
 
 
@@ -2102,6 +2120,21 @@ async function dashboardScan() {
 
         }
 
+
+        if (data.ai_analysis) {
+            const aiCard = document.getElementById("aiThreatCard");
+            const aiSum = document.getElementById("aiSummaryText");
+            const aiAct = document.getElementById("aiActionText");
+            const aiSrc = document.getElementById("aiSourceBadge");
+            if (aiCard && aiSum && aiAct) {
+                aiSum.textContent = data.ai_analysis.summary || "";
+                aiAct.textContent = data.ai_analysis.action || "";
+                if (aiSrc && data.ai_analysis.source) {
+                    aiSrc.textContent = data.ai_analysis.source;
+                }
+                aiCard.classList.remove("hidden");
+            }
+        }
 
         await loadDashboardStats();
 

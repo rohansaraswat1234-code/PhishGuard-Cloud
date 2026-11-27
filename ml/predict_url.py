@@ -42,9 +42,20 @@ def predict_url(url):
         ))
 
     features = extract_features(url)
+    model_features = dict(features)
+
+    # Path slash normalization: Do not falsely penalize benign HTTPS sites with clean lexical patterns
+    if (
+        features["https"] == 1
+        and features["suspicious_word_count"] == 0
+        and features["has_ip"] == 0
+        and features["at_count"] == 0
+        and features["hyphen_count"] <= 1
+    ):
+        model_features["slash_count"] = min(features["slash_count"], 2)
 
     row = pd.DataFrame(
-        [[features[name] for name in FEATURE_NAMES]],
+        [[model_features[name] for name in FEATURE_NAMES]],
         columns=FEATURE_NAMES
     )
 

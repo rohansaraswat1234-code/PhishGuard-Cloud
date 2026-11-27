@@ -1,3 +1,4 @@
+from backend.ai_analyst import generate_ai_analysis
 
 def levenshtein_dist(s1, s2):
     if len(s1) < len(s2):
@@ -2279,6 +2280,7 @@ def scan_url():
         result["ml_probability"]
     )
 
+    result["ai_analysis"] = generate_ai_analysis(result["url"], result)
     save_scan(result)
 
     return jsonify(result)
