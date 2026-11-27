@@ -282,6 +282,10 @@
     }
 
     function init() {
+        // User dashboard uses its native 5-card scanner + AI Threat Analyst UI.
+        if (document.getElementById("dashboardResult")) {
+            return;
+        }
 
         const button =
             findScanButton();
