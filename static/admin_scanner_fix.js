@@ -230,19 +230,28 @@
 
                 ${
                     data.ai_analysis
-                    ? `
-                    <div style="margin-top:12px; padding:12px; border-radius:8px; background:rgba(99,102,241,0.18); border:1px solid rgba(99,102,241,0.4);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                            <strong style="color:#a5b4fc; font-size:13px;">🤖 PhishGuard AI Threat Analyst</strong>
-                            <span style="font-size:10px; color:#94a3b8; padding:2px 6px; border-radius:10px; background:rgba(99,102,241,0.25);">${data.ai_analysis.source || "Explainable AI"}</span>
-                        </div>
-                        <p style="margin:0 0 6px 0; font-size:12.5px; line-height:1.5; color:#e2e8f0;">${data.ai_analysis.summary || ""}</p>
-                        <div style="font-size:11.5px; border-top:1px solid rgba(255,255,255,0.08); padding-top:5px;">
-                            <strong style="color:#94a3b8;">ACTION:</strong>
-                            <span style="color:#38bdf8; font-weight:600;"> ${data.ai_analysis.action || ""}</span>
-                        </div>
-                    </div>
-                    `
+                    ? (() => {
+                        const verdict = (data.status || "SAFE").toUpperCase();
+                        const accent = verdict === "PHISHING" ? "#ff6278" : (verdict === "SUSPICIOUS" ? "#ffc552" : "#35e6aa");
+                        const softBg = verdict === "PHISHING" ? "rgba(255,98,120,0.14)" : (verdict === "SUSPICIOUS" ? "rgba(255,197,82,0.12)" : "rgba(53,230,170,0.12)");
+                        const border = verdict === "PHISHING" ? "rgba(255,98,120,0.38)" : (verdict === "SUSPICIOUS" ? "rgba(255,197,82,0.35)" : "rgba(53,230,170,0.28)");
+                        return `
+                        <div style="margin-top:14px; padding:16px 18px; border-radius:12px; background:linear-gradient(135deg, rgba(7,31,25,0.96), rgba(4,21,17,0.98)); border:1px solid ${border}; border-left:4px solid ${accent}; box-shadow:0 8px 20px rgba(0,0,0,0.25);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+                                <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
+                                    <span style="width:28px; height:28px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; background:${softBg}; border:1px solid ${border}; font-size:15px;">🤖</span>
+                                    <strong style="color:#edf8f4; font-size:13.5px;">PhishGuard AI Threat Analyst</strong>
+                                    <span style="font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:${accent}; padding:3px 8px; border-radius:999px; background:${softBg}; border:1px solid ${border};">Explainable AI</span>
+                                </div>
+                                <span style="font-size:11px; color:#82a49a; padding:3px 9px; border-radius:999px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);">${data.ai_analysis.source || "PhishGuard Neural Intelligence (XAI)"}</span>
+                            </div>
+                            <p style="margin:12px 0 12px 0; font-size:13px; line-height:1.65; color:#cde3db;">${data.ai_analysis.summary || ""}</p>
+                            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:9px 12px; border-radius:8px; background:rgba(2,14,11,0.7); border:1px solid rgba(255,255,255,0.06);">
+                                <span style="font-size:10px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color:#82a49a; padding:2px 6px; border-radius:4px; background:rgba(255,255,255,0.05);">Recommended Action</span>
+                                <span style="color:${accent}; font-size:12.5px; font-weight:700;">${data.ai_analysis.action || ""}</span>
+                            </div>
+                        </div>`;
+                    })()
                     : ""
                 }
                 `

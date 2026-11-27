@@ -18,7 +18,7 @@ User Dashboard | PhishGuard Cloud
 
 <link
     rel="stylesheet"
-    href="/static/user_dashboard.css"
+    href="/static/user_dashboard.css?v=2"
 >
 
 <script
@@ -599,19 +599,19 @@ User Dashboard | PhishGuard Cloud
 </div>
 
     <!-- ================= AI THREAT INTELLIGENCE ANALYST ================= -->
-    <div id="aiThreatCard" class="dashboard-result hidden" style="margin-top: 20px; border-left: 4px solid #6366f1; background: rgba(30, 41, 59, 0.7); padding: 18px; border-radius: 10px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 22px;">🤖</span>
-                <strong style="font-size: 15px; color: #a5b4fc;">PhishGuard AI Threat Analyst</strong>
-                <span style="font-size: 10px; padding: 2px 8px; border-radius: 12px; background: rgba(99, 102, 241, 0.25); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.4);">Explainable AI</span>
+    <div id="aiThreatCard" class="ai-threat-card is-safe hidden">
+        <div class="ai-threat-header">
+            <div class="ai-threat-title-group">
+                <span class="ai-icon-badge" aria-hidden="true">🤖</span>
+                <strong class="ai-threat-title">PhishGuard AI Threat Analyst</strong>
+                <span class="ai-xai-pill">Explainable AI</span>
             </div>
-            <span id="aiSourceBadge" style="font-size: 11px; color: #94a3b8;">AI Intelligence</span>
+            <span id="aiSourceBadge" class="ai-source-badge">PhishGuard Neural Intelligence (XAI)</span>
         </div>
-        <p id="aiSummaryText" style="margin: 0 0 10px 0; font-size: 13.5px; line-height: 1.6; color: #e2e8f0;"></p>
-        <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px;">
-            <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">ACTION:</span>
-            <span id="aiActionText" style="font-size: 12.5px; font-weight: 600; color: #38bdf8;"></span>
+        <p id="aiSummaryText" class="ai-threat-summary"></p>
+        <div class="ai-threat-action-bar">
+            <span class="ai-action-label">Recommended Action</span>
+            <span id="aiActionText" class="ai-action-text"></span>
         </div>
     </div>
 
@@ -2137,6 +2137,15 @@ async function dashboardScan() {
                 if (aiSrc && data.ai_analysis.source) {
                     aiSrc.textContent = data.ai_analysis.source;
                 }
+                aiCard.classList.remove("is-safe", "is-suspicious", "is-phishing");
+                const verdict = (data.status || "SAFE").toUpperCase();
+                if (verdict === "PHISHING") {
+                    aiCard.classList.add("is-phishing");
+                } else if (verdict === "SUSPICIOUS") {
+                    aiCard.classList.add("is-suspicious");
+                } else {
+                    aiCard.classList.add("is-safe");
+                }
                 aiCard.classList.remove("hidden");
             }
         }
@@ -3529,6 +3538,6 @@ document
 
 <script src="/static/ui_animations.js"></script>
 
-<script src="/static/admin_scanner_fix.js?v=3"></script>
+<script src="/static/admin_scanner_fix.js?v=4"></script>
 </body>
 </html>

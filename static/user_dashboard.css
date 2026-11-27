@@ -751,6 +751,142 @@ body {
 }
 
 
+
+/* ================= AI THREAT ANALYST CARD ================= */
+
+.ai-threat-card {
+    --ai-accent: var(--green);
+    --ai-accent-soft: rgba(53, 230, 170, 0.12);
+    --ai-border: rgba(53, 230, 170, 0.28);
+
+    display: block;
+    width: 100%;
+    margin-top: 15px;
+    padding: 18px 20px;
+    border-radius: 12px;
+    background: linear-gradient(
+        135deg,
+        rgba(7, 31, 25, 0.96) 0%,
+        rgba(4, 21, 17, 0.98) 100%
+    );
+    border: 1px solid var(--ai-border);
+    border-left: 4px solid var(--ai-accent);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.ai-threat-card.is-safe {
+    --ai-accent: var(--green);
+    --ai-accent-soft: rgba(53, 230, 170, 0.12);
+    --ai-border: rgba(53, 230, 170, 0.3);
+}
+
+.ai-threat-card.is-suspicious {
+    --ai-accent: var(--yellow);
+    --ai-accent-soft: rgba(255, 197, 82, 0.12);
+    --ai-border: rgba(255, 197, 82, 0.35);
+}
+
+.ai-threat-card.is-phishing {
+    --ai-accent: var(--red);
+    --ai-accent-soft: rgba(255, 98, 120, 0.14);
+    --ai-border: rgba(255, 98, 120, 0.4);
+}
+
+.ai-threat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ai-threat-title-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ai-icon-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ai-accent-soft);
+    border: 1px solid var(--ai-border);
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.ai-threat-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.2px;
+}
+
+.ai-xai-pill {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--ai-accent-soft);
+    color: var(--ai-accent);
+    border: 1px solid var(--ai-border);
+}
+
+.ai-source-badge {
+    font-size: 11px;
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.ai-threat-summary {
+    margin: 13px 0 14px 0;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #cde3db;
+    word-break: break-word;
+}
+
+.ai-threat-action-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 13px;
+    border-radius: 8px;
+    background: rgba(2, 14, 11, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ai-action-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ai-action-text {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ai-accent);
+}
+
+
 .hidden {
 
     display:
