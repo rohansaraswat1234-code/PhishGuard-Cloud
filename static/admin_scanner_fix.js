@@ -227,6 +227,24 @@
                     `
                     : ""
                 }
+
+                ${
+                    data.ai_analysis
+                    ? `
+                    <div style="margin-top:12px; padding:12px; border-radius:8px; background:rgba(99,102,241,0.18); border:1px solid rgba(99,102,241,0.4);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                            <strong style="color:#a5b4fc; font-size:13px;">🤖 PhishGuard AI Threat Analyst</strong>
+                            <span style="font-size:10px; color:#94a3b8; padding:2px 6px; border-radius:10px; background:rgba(99,102,241,0.25);">${data.ai_analysis.source || "Explainable AI"}</span>
+                        </div>
+                        <p style="margin:0 0 6px 0; font-size:12.5px; line-height:1.5; color:#e2e8f0;">${data.ai_analysis.summary || ""}</p>
+                        <div style="font-size:11.5px; border-top:1px solid rgba(255,255,255,0.08); padding-top:5px;">
+                            <strong style="color:#94a3b8;">ACTION:</strong>
+                            <span style="color:#38bdf8; font-weight:600;"> ${data.ai_analysis.action || ""}</span>
+                        </div>
+                    </div>
+                    `
+                    : ""
+                }
                 `
             );
 

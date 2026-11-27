@@ -370,14 +370,24 @@ def analyze_url(url):
                 f"Suspicious keyword detected: {word}"
             )
 
-    # Trusted application domains
-    trusted_apps = {"phishguard-cloud.onrender.com", "127.0.0.1", "localhost"}
-    if domain in trusted_apps:
+    # Verified Official Tech Domains & Application Whitelist
+    trusted_roots = (
+        ".google.com", "google.com",
+        ".github.com", "github.com",
+        ".microsoft.com", "microsoft.com",
+        ".apple.com", "apple.com",
+        ".amazon.com", "amazon.com",
+        ".wikipedia.org", "wikipedia.org",
+        ".onrender.com", "onrender.com",
+        "phishguard-cloud.onrender.com",
+        "localhost", "127.0.0.1"
+    )
+    if any(domain == t or domain.endswith(t) for t in trusted_roots):
         return {
             "url": url,
             "status": "SAFE",
             "risk_score": 0,
-            "reasons": ["Verified official application domain"],
+            "reasons": ["Verified official infrastructure / authentic domain"],
             "is_trusted": True
         }
 
