@@ -41,6 +41,27 @@ def predict_url(url):
             ""
         ))
 
+
+    trusted_roots = (
+        ".google.com", "google.com",
+        ".youtube.com", "youtube.com",
+        ".github.com", "github.com",
+        ".microsoft.com", "microsoft.com",
+        ".apple.com", "apple.com",
+        ".amazon.com", "amazon.com",
+        ".wikipedia.org", "wikipedia.org",
+        ".openai.com", "openai.com",
+        ".render.com", "onrender.com",
+        "phishguard-cloud.onrender.com",
+        "localhost", "127.0.0.1"
+    )
+    domain = (parsed.hostname or "").lower()
+    if any(domain == t or domain.endswith(t) for t in trusted_roots):
+        return {
+            "prediction": "SAFE",
+            "phishing_probability": 0.0
+        }
+
     features = extract_features(url)
     model_features = dict(features)
 
